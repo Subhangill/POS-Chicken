@@ -1,0 +1,80 @@
+@model POS.ViewModel.EmployeeVM
+
+
+<div class="page-wrapper cardhead">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title"> @(Model?.employee.Id > 0 ? "Update Employee " : "New Employee  ")</h4>
+                        <a asp-action="Index" class="btn btn-primary "><i class="fas fa-list"></i>   List</a>
+
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Save" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="Area" class="form-label">Area </label>
+                                        <select asp-for="SelectedAreaIds"
+                                                asp-items="@(new SelectList(Model.arealist, "Id", "Name"))"
+                                                multiple="multiple"
+                                                id="Area"
+                                                class="search-select form-control"
+                                                required>
+                                            <option value="">Select Area</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="Name" class="form-label">Name</label>
+                                        <input type="text" asp-for="employee.Name" class="form-control" id="Name" placeholder="Enter Name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="UrduName" class="form-label">Urdu Name</label>
+                                        <input type="text" asp-for="employee.UrduName" id="UrduName" class="form-control" placeholder="نام درج کریں">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="DateOfBirth" class="form-label">Date Of Birth </label>
+                                        <input type="date" asp-for="employee.DateOfBirth" class="form-control" id="DateOfBirth" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="joiningDate" class="form-label">Joining Date</label>
+                                        <input type="date" asp-for="employee.JoiningDate" id="joiningDate" class="form-control">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="Salary" class="form-label">Salary</label>
+                                        <input type="number" asp-for="employee.Salary" class="form-control" id="Salary" required>
+                                    </div>
+                                    <input type="hidden" asp-for="employee.Id" />
+
+                                </div>
+                            </div>
+
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary"> <i class="fas fa-save"></i>   @(Model?.employee.Id > 0 ? "Update" : "Save")</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

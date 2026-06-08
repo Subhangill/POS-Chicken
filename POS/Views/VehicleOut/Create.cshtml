@@ -1,0 +1,89 @@
+@model POS.ViewModel.VehicleOutVM
+
+@{
+    ViewData["Title"] = "Create Vehicle Out";
+}
+
+<style>
+@@media print {
+    .navbar, .sidebar, header, footer, .page-header {
+        display: none !important;
+    }
+    body { margin: 0; }
+    .page-wrapper { width: 100%; }
+}
+</style>
+<div class="page-wrapper cardhead print-area">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">@(Model?.vehicleOut?.Id > 0 ? "Edit Vehicle Out" : "New Vehicle Out")</h4>
+                        <a asp-action="Index" class="btn btn-primary"><i class="fas fa-list"></i> List</a>
+                    </div>
+                    <div class="card-body">
+                        <form id="vehicleOutForm" asp-action="PrintAndSave" method="post" class="needs-validation">
+                            <div class="row">
+                                <!-- Date and Time -->
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="vehicleOut.DateAndTime" class="form-label">Date and Time</label>
+                                    <input asp-for="vehicleOut.DateAndTime" class="form-control" type="datetime-local" value="@Model.vehicleOut.DateAndTime.ToString("yyyy-MM-ddTHH:mm")" required />
+                                    <span asp-validation-for="vehicleOut.DateAndTime" class="text-danger"></span>
+                                </div>
+                                <!-- Employee dropdown -->
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="vehicleOut.employeeId" class="form-label" >Employee</label>
+                                    <select asp-for="vehicleOut.employeeId" id="search-select" class="form-select select2" asp-items="@(new SelectList(Model.EmployeeList, "Id", "Name", Model.vehicleOut?.employeeId))" required >
+                                        <option value="">-- Select Employee --</option>
+                                    </select>
+                                    <span asp-validation-for="vehicleOut.employeeId" class="text-danger"></span>
+                                </div>
+                                <!-- Vehicle dropdown -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="vehicleOut.vehicleId" class="form-label">Vehicle</label>
+                                    <select asp-for="vehicleOut.vehicleId" id="vehicle-select" class="form-select search-select" asp-items="@(new SelectList(Model.VehicleList, "Id", "VehicleNo", Model.vehicleOut?.vehicleId))" required >
+                                        <option value="" >-- Select Vehicle --</option>
+                                    </select>
+                                    <!-- Validation handled by MVC client-side validation -->
+                                    <span asp-validation-for="vehicleOut.vehicleId" class="text-danger"></span>
+                                </div>
+                                <!-- Hidden status (default 0) -->
+                                <input type="hidden" asp-for="vehicleOut.Id" />
+                            </div>
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> @(Model?.vehicleOut?.Id > 0 ? "Update" : "Save")</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('vehicleOutForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            if (!form.checkValidity()) {
+                return;
+            }
+            // Open a named blank window to bypass pop-up blockers
+            window.open('about:blank', 'PrintWindow');
+        });
+    }
+});
+</script>
+
+@if (TempData["PrintUrl"] != null)
+{
+    <script>
+        window.open('@TempData["PrintUrl"]', 'PrintWindow');
+    </script>
+}
+
+

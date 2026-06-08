@@ -1,0 +1,304 @@
+@model POS.ViewModel.VehicleOutVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Vehicle Out Gate Pass - @(Model.vehicleOut?.CodeId ?? "")</title>
+    <style>
+        :root {
+            --primary: #F26522;
+            --secondary: #64748b;
+            --border: #cbd5e1;
+            --background: #f8fafc;
+            --text: #0f172a;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background-color: var(--background);
+            line-height: 1.5;
+            padding: 40px 20px;
+        }
+        .invoice-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 40px;
+            position: relative;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo-area h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+        .logo-area p {
+            font-size: 14px;
+            color: var(--secondary);
+        }
+        .invoice-details {
+            text-align: right;
+        }
+        .invoice-details h2 {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .invoice-details p {
+            font-size: 14px;
+            color: var(--secondary);
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .details-block {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+        }
+        .details-block h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .details-block p {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .details-block span {
+            font-size: 13px;
+            color: var(--secondary);
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .info-table th {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 14px;
+            text-transform: uppercase;
+            padding: 12px;
+            text-align: left;
+        }
+        .info-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+        }
+        .info-table tr:last-child td {
+            border-bottom: 2px solid var(--primary);
+        }
+        .footer-note {
+            text-align: center;
+            color: var(--secondary);
+            font-size: 13px;
+            margin-top: 50px;
+            border-top: 1px dashed var(--border);
+            padding-top: 20px;
+        }
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding: 0 10px;
+        }
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+        .signature-line {
+            border-top: 1px solid var(--text);
+            margin-bottom: 5px;
+        }
+        .signature-box p {
+            font-size: 13px;
+            color: var(--secondary);
+            text-transform: uppercase;
+        }
+        .action-bar {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-print {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .btn-print:hover {
+            opacity: 0.9;
+        }
+        @@media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+                margin: 0;
+            }
+            .invoice-card {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .action-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="action-bar">
+        <button class="btn-print" onclick="window.print()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-6a2 2 0 012-2h16a2 2 0 012 2v6a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"></path></svg>
+            Print Gate Pass
+        </button>
+    </div>
+
+    <div class="invoice-card">
+        <!-- Company Header (Logo, Name, Email, Phone, Address) -->
+        <div class="company-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                @if (!string.IsNullOrEmpty(Model.setting?.logo) && Model.setting.logo != "~/Logo/null")
+                {
+                    <img src="@Url.Content(Model.setting.logo)" alt="Logo" style="max-height: 65px; object-fit: contain;" />
+                }
+                else
+                {
+                    <div style="background-color: var(--primary); color: #fff; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 700; font-size: 20px;">
+                        @((Model.setting?.Name ?? "POS").Substring(0, Math.Min(3, (Model.setting?.Name ?? "POS").Length)).ToUpper())
+                    </div>
+                }
+                <div>
+                    <h1 style="font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 2px;">@(Model.setting?.Name ?? "POS Company")</h1>
+                    <p style="font-size: 13px; color: var(--secondary);">@(Model.setting?.Address ?? "Industrial Area, Sector 5, Main Road, City")</p>
+                </div>
+            </div>
+            <div style="text-align: right; font-size: 13px; color: var(--secondary); line-height: 1.4;">
+                <p><strong>Email:</strong> @(Model.setting?.Email ?? "info@company.com")</p>
+                <p><strong>Phone:</strong> @(Model.setting?.PhoneNumber ?? "+1 234 567 890")</p>
+            </div>
+        </div>
+
+        <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <h2 style="font-size: 20px; font-weight: 700; color: var(--primary); text-transform: uppercase;">Vehicle Gate Pass</h2>
+                <p style="font-size: 13px; color: var(--secondary);">Outbound Dispatch Voucher</p>
+            </div>
+            <div class="invoice-details" style="text-align: right;">
+                <h3 style="font-size: 16px; color: var(--primary); font-weight: 700;">PASS NO: @(Model.vehicleOut?.CodeId ?? "N/A")</h3>
+                <p style="font-size: 13px; color: var(--secondary);">Date: @(Model.vehicleOut?.DateAndTime.ToString("dd-MMM-yyyy hh:mm tt") ?? "N/A")</p>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="details-block">
+                <h3>Employee Details</h3>
+                <p>@(Model.employee?.Name ?? "N/A")</p>
+                <span>Authorized Driver / Representative</span>
+            </div>
+            <div class="details-block">
+                <h3>Vehicle Details</h3>
+                <p>@(Model.vehicle?.VehicleNo ?? "N/A")</p>
+                <span>Vehicle Outbound License No</span>
+            </div>
+        </div>
+
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>Supplier Name</th>
+                    <th>Product Name</th>
+                    <th style="text-align: right;">Weight (Kg)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items != null && Model.Items.Any())
+                {
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@(item.SupplierName)</td>
+                            <td>@(item.ProductName)</td>
+                            <td style="text-align: right; font-weight: 600;">@item.Kg.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--secondary); padding: 20px;">No loaded items found for this trip.</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f1f5f9; font-weight: 700;">
+                    <td colspan="2" style="text-align: right; padding: 12px; border-top: 2px solid var(--primary);">Total Weight:</td>
+                    <td style="text-align: right; padding: 12px; border-top: 2px solid var(--primary); font-size: 16px; color: var(--primary);">
+                        @(Model.Items?.Sum(i => i.Kg).ToString("N2") ?? "0.00") Kg
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="signature-row">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Prepared By</p>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Receiver Signature</p>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Authorized Signature</p>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <p>Thank you for your business. For any support or inquiries, please contact the main administration office.</p>
+        </div>
+    </div>
+</body>
+</html>

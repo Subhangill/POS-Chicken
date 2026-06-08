@@ -1,0 +1,79 @@
+@model List<POS.Models.Vehicle>
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Vehicle List </h4>
+                        <a asp-action="Create" class="btn btn-primary rounded "><i class="fa fa-plus"></i>  Create</a>
+
+                    </div>
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                             <table class="table datatable table-bordered ">
+                                <thead >
+                                    <tr>
+                                        <th width="20%" class="text-center">SR</th>
+                                        <th>Name</th>
+                                        <th width="20%" class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <thead class="custom">
+                                    <tr>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm col-search" placeholder="Search SR" /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm col-search" placeholder="Search Name" /></th>
+                                        <th class="p-1 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Item -->
+                                    @{
+                                        int SR = 1;
+                                    }
+                                    @foreach (var items in Model.Where(x => x.IsDelete == 0).OrderByDescending(x => x.Id))
+                                    {
+                                        <tr>
+                                            <td class="text-center">@SR</td>
+                                            <td>@items.VehicleNo</td>
+                                            <td class="text-center">
+                                                <a asp-action="Edit" asp-route-id="@items.Id"
+                                                   class="btn btn-primary btn-sm " title="Edit">
+                                                    <i class="fas fa-pencil "></i>
+                                                </a>
+
+                                             
+
+                                                <a asp-action="Delete"
+                                                        asp-route-id="@items.Id"
+                                                        class="btn btn-danger btn-sm "
+                                                        title="Delete"
+                                                        onclick="return confirm('Are you sure you want to delete this record?')">
+                                                    <i class=" fas fa-trash"> </i>
+                                                </a>
+
+                                            </td>
+                                        </tr>
+                                        SR++;
+                                    }
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @*     <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0">2014 - 2025 &copy; SmartHR.</p>
+        <p>Designed &amp; Developed By <a href="javascript:void(0);" class="text-primary">Dreams</a></p>
+    </div>
+ *@
+</div>

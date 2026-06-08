@@ -1,0 +1,78 @@
+@model POS.ViewModel.SupplierVM
+
+
+<div class="page-wrapper cardhead">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title"> @(Model?.supplier.Id > 0 ? "Update Product " : "New Product  ")</h4>
+                        <a asp-action="Index" class="btn btn-primary "><i class="fas fa-list"></i>   List</a>
+
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Save" method="post">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="Category" class="form-label">Category </label>
+                                    <select asp-for="supplier.AreaId"
+                                            asp-items="@(new SelectList(Model.arealist, "Id", "Name"))"
+                                            id="search-select"
+                                            class=" select"
+                                            required>
+                                        <option value="">Select Area</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="Name" class="form-label">Name</label>
+                                        <input type="text" asp-for="supplier.Name" class="form-control" id="Name" placeholder="Enter Name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="UrduName" class="form-label">Urdu Name</label>
+                                        <input type="text" asp-for="supplier.UrduName" id="UrduName" class="form-control" placeholder="نام درج کریں">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="Email" class="form-label">Email</label>
+                                        <input type="text" asp-for="supplier.Email" class="form-control" id="Email" required>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="Phone" class="form-label">Phone</label>
+                                        <input type="text" asp-for="supplier.Phone" class="form-control" id="Phone" required>
+                                    </div>
+                                    <input type="hidden" asp-for="supplier.Id" />
+
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="Business" class="form-label">Business Name</label>
+                                        <input type="text" asp-for="supplier.BusinessName" class="form-control" id="Business" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary"> <i class="fas fa-save"></i>   @(Model?.supplier.Id > 0 ? "Update" : "Save")</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

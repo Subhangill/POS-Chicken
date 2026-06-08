@@ -1,0 +1,559 @@
+@model POS.ViewModel.VehicleInVM
+
+<style>
+    /* Prevent the entire page/window from scrolling */
+    html, body, .main-wrapper, .page-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    /* Adjust page content area to fit inside the viewport */
+    .page-wrapper > .content {
+        height: calc(100vh - 60px) !important; 
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 15px !important;
+    }
+
+    /* Force the main column/card container to occupy 100% of height and use Flexbox layout */
+    .cardhead, 
+    .cardhead > .content > .row, 
+    .cardhead > .content > .row > .col-sm-12, 
+    .cardhead > .content > .row > .col-sm-12 > .card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 0 !important;
+    }
+
+    /* Restructure the card-body as a Flexbox column */
+    .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 15px !important;
+    }
+
+    /* Wrap form inside flex hierarchy to preserve height layout */
+    #vehicleInForm {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #vehicleInForm > .row {
+        flex: 1;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    /* Allow the left side controls column to scroll internally if screen height is small */
+    .col-md-4 {
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* Format the right side column to take full height and layout vertically */
+    .col-md-8 {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Manual addition card stays fixed at the top */
+    .col-md-8 > .card {
+        flex-shrink: 0;
+    }
+
+    /* Header for the table list spacing */
+    .col-md-8 > h6 {
+        flex-shrink: 0;
+    }
+
+    /* Dynamically size the table container to occupy exactly the remaining viewport space and become scrollable */
+    .table-scrollable {
+        flex: 1;
+        overflow-y: auto !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: #fff;
+        min-height: 150px;
+    }
+
+    /* Style improvements for select2 options inside table rows */
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #ced4da !important;
+        height: 38px !important;
+        line-height: 38px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+</style>
+
+<div class="page-wrapper cardhead">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">@(Model.vehicleIn.Id > 0 ? "Update Vehicle In" : "New Vehicle In")</h4>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Save" method="post" id="vehicleInForm">
+                            <input type="hidden" asp-for="vehicleIn.Id" />
+                            <input type="hidden" asp-for="vehicleIn.employeeId" id="vehicleIn_employeeId" />
+                            <input type="hidden" asp-for="vehicleIn.vehicleId" id="vehicleIn_vehicleId" />
+
+                            <div class="row">
+                                <!-- Left Column: covers col-md-4 -->
+                                <div class="col-md-4">
+                                     <div class="mb-3">
+                                         <label class="form-label font-weight-bold">Date & Time</label>
+                                         <input type="datetime-local" class="form-control" asp-for="vehicleIn.date" value="@Model.vehicleIn.date.ToString("yyyy-MM-ddTHH:mm")" required />
+                                     </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label font-weight-bold">Employee - Vehicle</label>
+                                        <select id="vehicleOutSelect" class="search-select form-control" required @(Model.vehicleIn.Id > 0 ? "disabled" : "")>
+                                            <option value="">Select Employee - Vehicle</option>
+                                            @if (Model.EmployeeVehicle != null)
+                                            {
+                                                @foreach (var item in Model.EmployeeVehicle)
+                                                {
+                                                    <option value="@item.Id" 
+                                                             data-employee-id="@item.EmployeeId" 
+                                                             data-vehicle-id="@item.VehicleId"
+                                                             selected="@(Model.vehicleIn.employeeId == item.EmployeeId && Model.vehicleIn.vehicleId == item.VehicleId)">
+                                                        @item.Text
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="row mt-4 g-2">
+                                        <div class="col-4">
+                                            <button type="submit" name="submitButton" value="Save" class="btn btn-primary w-100 py-2"><i class="fas fa-save"></i> Save</button>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="submit" name="submitButton" value="Print" class="btn btn-info w-100 py-2"><i class="fas fa-print"></i> Print</button>
+                                        </div>
+                                        <div class="col-4">
+                                            <a asp-action="Index" class="btn btn-secondary w-100 py-2"><i class="fas fa-list"></i> List</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: covers col-md-8 -->
+                                <div class="col-md-8">
+                                    <div class="card border mb-2 bg-light">
+                                        <div class="card-body p-2 px-3">
+                                            <h6 class="card-title text-primary mb-1"><i class="fas fa-plus-circle"></i> Add Supplier Item</h6>
+                                            <div class="row g-2 align-items-end">
+                                                <!-- Supplier dropdown -->
+                                                <div class="col-4">
+                                                    <label class="form-label font-weight-bold mb-1">Supplier</label>
+                                                    <select id="supplierSelect" class="form-select search-select">
+                                                        <option value="">Select Supplier</option>
+                                                        @if (Model.SupplierList != null)
+                                                        {
+                                                            @foreach (var s in Model.SupplierList)
+                                                            {
+                                                                <option value="@s.Id">@s.Name</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <!-- Product dropdown -->
+                                                <div class="col-4">
+                                                    <label class="form-label font-weight-bold mb-1">Product (Raw Items)</label>
+                                                    <select id="productSelect" class="form-select search-select">
+                                                        <option value="">Select Product</option>
+                                                        @foreach (var prod in Model.productList)
+                                                        {
+                                                            <option value="@prod.Id">@prod.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <!-- Weight input -->
+                                                <div class="col-3">
+                                                    <label class="form-label font-weight-bold mb-1">Weight (Kg)</label>
+                                                    <input type="number" id="kgInput" class="form-control" placeholder="Weight" min="0" step="any" />
+                                                </div>
+                                                <!-- Add Button -->
+                                                <div class="col-1">
+                                                    <button type="button" id="btnAddItem" class="btn btn-primary w-100 py-2"><i class="fas fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="mb-1 mt-2 font-weight-bold text-muted">Supplier Vehicle In List</h6>
+                                    <div class="table-scrollable p-1 bg-light">
+                                        <table class="table table-hover table-bordered mb-0 bg-white" id="mytable">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Supplier</th>
+                                                    <th width="35%">Product</th>
+                                                    <th width="20%" class="text-right">Weight (Kg)</th>
+                                                    <th width="15%" class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.vehicleIn.Id > 0)
+                                                {
+                                                    var areaSupplierIds = ViewBag.AreaSupplierIds as List<int> ?? new List<int>();
+                                                    for (int i = 0; i < Model.vehicleInDetailList.Count; i++)
+                                                    {
+                                                        var detail = Model.vehicleInDetailList[i];
+                                                        var supplierName = Model.SupplierList?.FirstOrDefault(s => s.Id == detail.SupplierId)?.Name ?? "N/A";
+                                                        var isManual = !areaSupplierIds.Contains(detail.SupplierId);
+                                                        var deleteDisabled = isManual ? "" : "disabled";
+
+                                                        <tr data-manual="@(isManual ? "true" : "false")">
+                                                            <td>
+                                                                <strong>@supplierName</strong>
+                                                                <input type="hidden" name="vehicleInDetailList[@i].SupplierId" value="@detail.SupplierId" />
+                                                                <input type="hidden" name="vehicleInDetailList[@i].Id" value="@detail.Id" />
+                                                            </td>
+                                                            <td>
+                                                                <select name="vehicleInDetailList[@i].productId" class="form-control search-select row-product-select">
+                                                                    <option value="">Select Product</option>
+                                                                    @foreach (var prod in Model.productList)
+                                                                    {
+                                                                        <option value="@prod.Id" selected="@(detail.productId == prod.Id)">@prod.Name</option>
+                                                                    }
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" name="vehicleInDetailList[@i].Kg" class="form-control text-right row-kg-input" 
+                                                                       value="@(detail.Kg > 0 ? detail.Kg.ToString("0.##") : "")" placeholder="Weight" min="0" step="any" />
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <button type="button" class="btn btn-danger btn-sm btnRemoveItem" @deleteDisabled><i class="fas fa-trash"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr id="emptyRow">
+                                                        <td colspan="4" class="text-center text-muted py-5">
+                                                            <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                                            No items added yet. Please use the fields above to add items.
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $(document).ready(function () {
+            // Serialize raw products list to a JS array for dynamic row creation
+            var rawProducts = @Html.Raw(Json.Serialize(Model.productList.Select(p => new { id = p.Id, name = p.Name })));
+
+            // Initialize Select2 on dropdowns
+            if ($.fn.select2) {
+                $('.search-select:not(.select2-hidden-accessible)').select2({ width: '100%' });
+            }
+
+            // Function to generate the standard row HTML dynamically
+            function createRowHtml(index, supplierId, supplierName, selectedProductId, kg, isManual) {
+                var productOptionsHtml = '<option value="">Select Product</option>';
+                $.each(rawProducts, function (i, prod) {
+                    var pId = prod.id || prod.Id;
+                    var pName = prod.name || prod.Name;
+                    var selected = (selectedProductId && pId == selectedProductId) ? 'selected' : '';
+                    productOptionsHtml += `<option value="${pId}" ${selected}>${pName}</option>`;
+                });
+
+                var kgValue = (kg !== undefined && kg !== null && kg !== "") ? parseFloat(kg) : "";
+                var deleteDisabled = isManual ? "" : "disabled";
+
+                return `
+                    <tr data-manual="${isManual ? "true" : "false"}">
+                        <td>
+                            <strong>${supplierName}</strong>
+                            <input type="hidden" name="vehicleInDetailList[${index}].SupplierId" value="${supplierId}" />
+                        </td>
+                        <td>
+                            <select id="product_select_${index}_${Date.now()}" name="vehicleInDetailList[${index}].productId" class="form-control search-select row-product-select">
+                                ${productOptionsHtml}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" name="vehicleInDetailList[${index}].Kg" class="form-control text-right row-kg-input" value="${kgValue}" placeholder="Weight" min="0" step="any" />
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm btnRemoveItem" ${deleteDisabled}><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Dropdown selection change event (Selecting Employee - Vehicle)
+            $('#vehicleOutSelect').on('change', function () {
+                try {
+                    var selectedOption = $('#vehicleOutSelect option:selected');
+                    var employeeId = selectedOption.attr('data-employee-id') || selectedOption.data('employee-id');
+                    var vehicleId = selectedOption.attr('data-vehicle-id') || selectedOption.data('vehicle-id');
+                    var vehicleOutId = $(this).val();
+
+                    console.log("Dropdown change triggered:", {
+                        employeeId: employeeId,
+                        vehicleId: vehicleId,
+                        vehicleOutId: vehicleOutId
+                    });
+
+                    $('#vehicleIn_employeeId').val(employeeId || '');
+                    $('#vehicleIn_vehicleId').val(vehicleId || '');
+
+                    // Reset items list and show a loading spinner
+                    var tbody = $('#mytable tbody');
+                    tbody.empty().append(`
+                        <tr id="loadingRow">
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="fas fa-spinner fa-spin fa-2x mb-2 d-block text-primary"></i>
+                                Loading employee area suppliers...
+                            </td>
+                        </tr>
+                    `);
+
+                    if (vehicleOutId) {
+                        $.ajax({
+                            url: '@Url.Action("GetSuppliersByEmployee", "VehicleIn")',
+                            type: 'GET',
+                            data: { employeeId: employeeId, vehicleOutId: vehicleOutId },
+                            success: function (data) {
+                                try {
+                                    console.log("Ajax success callback received suppliers:", data);
+                                    tbody.find('#loadingRow').remove();
+                                    
+                                    if (data && data.length > 0) {
+                                        $('#emptyRow').remove();
+                                        $.each(data, function (index, supplier) {
+                                            var sName = supplier.name || supplier.Name || 'N/A';
+                                            var sId = supplier.id || supplier.Id || 0;
+                                            
+                                            // Verify duplicate before inserting (just in case)
+                                            var exists = false;
+                                            tbody.find('tr').each(function () {
+                                                var existingSupplierId = $(this).find('input[name*="SupplierId"]').val();
+                                                if (existingSupplierId == sId) {
+                                                    exists = true;
+                                                    return false;
+                                                }
+                                            });
+
+                                            if (!exists) {
+                                                var rowIndex = tbody.find('tr').not('#emptyRow').length;
+                                                // Passed false for isManual since it is loaded from database area query
+                                                var rowHtml = createRowHtml(rowIndex, sId, sName, null, null, false);
+                                                var newRow = $(rowHtml);
+                                                tbody.append(newRow);
+                                                if ($.fn.select2) {
+                                                    try {
+                                                        newRow.find('.search-select').select2({ width: '100%' });
+                                                    } catch (selectEx) {
+                                                        console.error("Select2 initialization error in row:", selectEx);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        if (tbody.find('tr').length === 0) {
+                                            tbody.append(`
+                                                <tr id="emptyRow">
+                                                    <td colspan="4" class="text-center text-muted py-5">
+                                                        <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                                        No area-based suppliers found for this employee.
+                                                    </td>
+                                                </tr>
+                                            `);
+                                        }
+                                    }
+                                } catch (innerEx) {
+                                    console.error("Error processing AJAX success callback:", innerEx);
+                                    alert("Error displaying suppliers: " + innerEx.message);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("AJAX Error occurred while fetching suppliers:", { xhr: xhr, status: status, error: error });
+                                tbody.find('#loadingRow').remove();
+                                if (tbody.find('tr').length === 0) {
+                                    tbody.append(`
+                                        <tr id="emptyRow">
+                                            <td colspan="4" class="text-center text-danger py-5">
+                                                <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
+                                                Error loading suppliers. Please check the logs.
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                        }
+                    });
+                } else {
+                    tbody.find('#loadingRow').remove();
+                    if (tbody.find('tr').length === 0) {
+                        tbody.append(`
+                            <tr id="emptyRow">
+                                <td colspan="4" class="text-center text-muted py-5">
+                                    <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                    No items added yet. Please use the fields above to add items.
+                                </td>
+                            </tr>
+                        `);
+                    }
+                }
+            } catch (changeEx) {
+                console.error("Error in vehicleOutSelect change handler:", changeEx);
+                alert("Error handling vehicle selection: " + changeEx.message);
+            }
+        });
+
+            // Add Supplier Item Button Handler (Manual Addition Card)
+            $('#btnAddItem').on('click', function () {
+                var supplierId = $('#supplierSelect').val();
+                var supplierName = $('#supplierSelect option:selected').text();
+                var productId = $('#productSelect').val();
+                var productName = $('#productSelect option:selected').text();
+                var kg = $('#kgInput').val();
+
+                if (!supplierId) {
+                    alert("Please select a Supplier.");
+                    return;
+                }
+
+                // Remove emptyRow placeholder
+                $('#emptyRow').remove();
+
+                var tbody = $('#mytable tbody');
+                var index = tbody.find('tr').length;
+
+                // Generate the row, passing true for isManual since it's a manual selection
+                var rowHtml = createRowHtml(index, supplierId, supplierName, productId, kg, true);
+                var newRow = $(rowHtml);
+                tbody.append(newRow);
+                if ($.fn.select2) {
+                    newRow.find('.search-select').select2({ width: '100%' });
+                }
+
+                // Reset top card inputs (leave supplierSelect as all suppliers)
+                $('#supplierSelect').val('').trigger('change');
+                $('#productSelect').val('').trigger('change');
+                $('#kgInput').val('');
+            });
+
+            // Remove Supplier Item Handler
+            $(document).on('click', '.btnRemoveItem', function () {
+                var row = $(this).closest('tr');
+                var isManual = row.attr('data-manual') === 'true';
+
+                if (!isManual) {
+                    alert("This item was loaded from the database query and cannot be deleted.");
+                    return;
+                }
+
+                row.remove();
+                if ($('#mytable tbody tr').length === 0) {
+                    $('#mytable tbody').append(`
+                        <tr id="emptyRow">
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                No items added yet. Please use the fields above to add items.
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+
+            // Keyboard Navigation: when a product select dropdown is closed, focus the Kg input of the same row
+            $(document).on('select2:close', '.row-product-select', function () {
+                var row = $(this).closest('tr');
+                setTimeout(function () {
+                    row.find('.row-kg-input').focus().select();
+                }, 50);
+            });
+
+            // Keyboard Navigation: when Enter is pressed in Kg input, focus the product select of the next row
+            $(document).on('keydown', '.row-kg-input', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    var currentRow = $(this).closest('tr');
+                    var nextRow = currentRow.next('tr');
+                    if (nextRow.length > 0) {
+                        nextRow.find('.row-product-select').select2('open');
+                    }
+                }
+            });
+
+            var isPrintClicked = false;
+
+            // Set flag when Print button is clicked
+            $('button[value="Print"]').on('click', function () {
+                isPrintClicked = true;
+            });
+
+            // Clear flag when Save button is clicked
+            $('button[value="Save"]').on('click', function () {
+                isPrintClicked = false;
+            });
+
+            // Form Submit Handler: Re-indexes inputs for contiguous model binding
+            $('#vehicleInForm').on('submit', function (e) {
+                var rows = $('#mytable tbody tr').not('#emptyRow');
+
+                if (rows.length === 0) {
+                    alert('Please add at least one supplier item to the list.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Open a named blank window to bypass pop-up blockers if Print was clicked
+                if (isPrintClicked) {
+                    window.open('about:blank', 'PrintWindow');
+                }
+
+                // Contiguously re-index inputs starting from index 0
+                rows.each(function (newIndex, tr) {
+                    var row = $(tr);
+                    row.find('input[name*="vehicleInDetailList"], select[name*="vehicleInDetailList"]').each(function () {
+                        var name = $(this).attr('name');
+                        var newName = name.replace(/vehicleInDetailList\[\d+\]/, 'vehicleInDetailList[' + newIndex + ']');
+                        $(this).attr('name', newName);
+                    });
+                });
+            });
+        });
+    });
+</script>
+
+@if (TempData["PrintUrl"] != null)
+{
+    <script>
+        window.open('@TempData["PrintUrl"]', 'PrintWindow');
+    </script>
+}

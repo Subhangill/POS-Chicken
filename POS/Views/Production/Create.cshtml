@@ -1,0 +1,455 @@
+@model POS.ViewModel.ProductionVM
+
+<style>
+    .table-scrollable {
+        max-height: 200px;
+        overflow-y: auto !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+    .table-scrollable table {
+        margin-bottom: 0 !important;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title d-flex justify-content-between align-items-center">
+                            <h4 class="card-title">@(Model?.production?.Id > 0 ? "Update Production" : "New Production")</h4>
+                            <a asp-action="Index" class="btn btn-primary"><i class="fas fa-list"></i> List</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="productionForm" asp-action="Save" method="post">
+                            <input type="hidden" name="production.Id" value="@Model?.production?.Id" />
+                            <input type="hidden" name="production.CodeId" value="@Model?.production?.CodeId" />
+                            <input type="hidden" name="production.RawTotal" id="productionRawTotal" value="@Model?.production?.RawTotal" />
+                            <input type="hidden" name="production.FinalTotal" id="productionFinalTotal" value="@Model?.production?.FinalTotal" />
+
+                            <!-- Production Date & Note -->
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label fw-bold">Production Date <span class="text-danger">*</span></label>
+                                        <input type="date" name="production.Date" id="productionDate" class="form-control" 
+                                               value="@(Model?.production?.Date != null ? Model.production.Date.ToString("yyyy-MM-dd") : AppDate.Now.ToString("yyyy-MM-dd"))" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label class="form-label fw-bold">Note / Description</label>
+                                        <input type="text" name="production.Note" id="productionNote" class="form-control" 
+                                               value="@Model?.production?.Note" placeholder="Enter production notes or comments here..." />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation Tabs -->
+                            <nav class="nav nav-style-6 nav-pills mb-3 nav-justified d-sm-flex d-block" role="tablist">
+                                <a class="nav-link active fw-bold" data-bs-toggle="tab" role="tab" href="#nav-raw-items" aria-selected="true" aria-controls="nav-raw-items">
+                                    <i class="fas fa-cubes me-1"></i> Raw Items
+                                </a>
+                                <a class="nav-link fw-bold" data-bs-toggle="tab" role="tab" href="#nav-finish-items" aria-selected="false" aria-controls="nav-finish-items">
+                                    <i class="fas fa-box-open me-1"></i> Finish Items
+                                </a>
+                            </nav>
+
+                            <!-- Tab Contents -->
+                            <div class="tab-content border p-3 rounded bg-light">
+                                
+                                <!-- RAW ITEMS TAB -->
+                                <div class="tab-pane show active" id="nav-raw-items" role="tabpanel">
+                                    <div class="row align-items-end g-3 mb-4">
+                                        <div class="col-md-7 col-sm-6">
+                                            <label class="form-label fw-bold">Select Raw Product</label>
+                                            <select id="rawProductSelect" class="form-control search-select">
+                                                <option value="">Select Product</option>
+                                                @if (Model?.RawProductId != null)
+                                                {
+                                                    @foreach (var prod in Model.RawProductId)
+                                                    {
+                                                        <option value="@prod.Id">@prod.Name</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-sm-3">
+                                            <label class="form-label fw-bold">Weight (Kg)</label>
+                                            <input type="number" id="rawWeightInput" class="form-control" placeholder="Weight" min="0" step="any" />
+                                        </div>
+                                        <div class="col-md-2 col-sm-3 d-grid">
+                                            <button type="button" id="btnAddRaw" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add</button>
+                                        </div>
+                                    </div>
+
+                                     <div class="table-responsive table-scrollable">
+                                         <table class="table table-hover table-bordered bg-white" id="rawItemsTable">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Product Name</th>
+                                                    <th width="35%"> Weight (Kg)</th>
+                                                    <th width="15%" class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model?.rawDetails != null && Model.rawDetails.Any())
+                                                {
+                                                    for (int i = 0; i < Model.rawDetails.Count; i++)
+                                                    {
+                                                        var item = Model.rawDetails[i];
+                                                        var productName = Model.productList.FirstOrDefault(p => p.Id == item.productId)?.Name ?? "N/A";
+                                                        <tr>
+                                                            <td>
+                                                                <strong>@productName</strong>
+                                                                <input type="hidden" name="rawDetails[@i].productId" value="@item.productId" />
+                                                                <input type="hidden" name="rawDetails[@i].Id" value="@item.Id" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" name="rawDetails[@i].weight" class="form-control text-right raw-weight-field" 
+                                                                       value="@item.weight.ToString("0.##")" step="any" required />
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <button type="button" class="btn btn-danger btn-sm btnRemoveRaw"><i class="fas fa-trash"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr class="empty-row">
+                                                        <td colspan="3" class="text-center text-muted py-4">
+                                                            <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                                            No raw items added yet.
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                           
+                                        </table>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-2 mb-0">
+                                        <div class="card bg-white border border-secondary shadow-sm rounded p-2 text-end" style="min-width: 250px;">
+                                            <span class="text-muted small fw-bold text-uppercase">Total Raw Weight</span> 
+                                            <h3 class="m-0 text-primary fw-bold"><span id="rawSummaryTotal">0.00</span> <small class="fs-6 text-muted">Kg</small></h3>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FINISH ITEMS TAB -->
+                                <div class="tab-pane" id="nav-finish-items" role="tabpanel">
+                                    <div class="row align-items-end g-3 mb-4">
+                                        <div class="col-md-7 col-sm-6">
+                                            <label class="form-label fw-bold">Select Finished Product</label>
+                                            <select id="finishProductSelect" class="form-control search-select">
+                                                <option value="">Select Product</option>
+                                                @if (Model?.FinishProductId != null)
+                                                {
+                                                    @foreach (var prod in Model.FinishProductId)
+                                                    {
+                                                        <option value="@prod.Id">@prod.Name</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-sm-3">
+                                            <label class="form-label fw-bold">Weight (Kg)</label>
+                                            <input type="number" id="finishWeightInput" class="form-control" placeholder="Weight" min="0" step="any" />
+                                        </div>
+                                        <div class="col-md-2 col-sm-3 d-grid">
+                                            <button type="button" id="btnAddFinish" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add</button>
+                                        </div>
+                                    </div>
+
+                                     <div class="table-responsive table-scrollable">
+                                         <table class="table table-hover table-bordered bg-white" id="finishItemsTable">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Product Name</th>
+                                                    <th width="35%">Weight (Kg)</th>
+                                                    <th width="15%" class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model?.finishDetails != null && Model.finishDetails.Any())
+                                                {
+                                                    for (int i = 0; i < Model.finishDetails.Count; i++)
+                                                    {
+                                                        var item = Model.   finishDetails[i];
+                                                        var productName = Model.productList.FirstOrDefault(p => p.Id == item.productId)?.Name ?? "N/A";
+                                                        <tr>
+                                                            <td>
+                                                                <strong>@productName</strong>
+                                                                <input type="hidden" name="finishDetails[@i].productId" value="@item.productId" />
+                                                                <input type="hidden" name="finishDetails[@i].Id" value="@item.Id" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" name="finishDetails[@i].weight" class="form-control text-right finish-weight-field" 
+                                                                       value="@item.weight.ToString("0.##")" step="any" required />
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <button type="button" class="btn btn-danger btn-sm btnRemoveFinish"><i class="fas fa-trash"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr class="empty-row">
+                                                        <td colspan="3" class="text-center text-muted py-4">
+                                                            <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                                            No finish items added yet.
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                            
+                                        </table>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-2 mb-0">
+                                        <div class="card bg-white border border-secondary shadow-sm rounded p-3 text-end" style="min-width: 250px;">
+                                            <span class="text-muted small fw-bold text-uppercase">Total Finished Weight</span>
+                                            <h3 class="m-0 text-success fw-bold"><span id="finishSummaryTotal">0.00</span> <small class="fs-6 text-muted">Kg</small></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                              <!-- Save / Actions Button Footer -->
+                              <hr class="mt-2" />
+                              <div class="text-center mt-3">
+                                  <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm"><i class="fas fa-save me-1"></i> Save Production</button>
+                              </div>
+                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $(document).ready(function () {
+            // Setup Products array for JS lookup
+            var productsList = @Html.Raw(Json.Serialize((Model?.productList ?? new List<POS.Models.Product>()).Select(p => new { id = p.Id, name = p.Name })));
+
+            // Initialize Select2 if available
+            // if ($.fn.select2) {
+            //     $('.search-select').select2({
+            //         width: '100%',
+            //         placeholder: 'Select Product'
+            //     });
+            // }
+
+            // Function to find product name by ID
+            function getProductName(id) {
+                var p = productsList.find(x => x.id == id);
+                return p ? p.name : 'N/A';
+            }
+
+            // --- CALCULATIONS FOR TOTAL WEIGHTS ---
+            function calculateRawTotal() {
+                var total = 0;
+                $('.raw-weight-field').each(function () {
+                    var val = parseFloat($(this).val());
+                    if (!isNaN(val)) {
+                        total += val;
+                    }
+                });
+                $('#rawSummaryTotal').text(total.toFixed(2));
+                $('#productionRawTotal').val(total.toFixed(2));
+            }
+
+            function calculateFinishTotal() {
+                var total = 0;
+                $('.finish-weight-field').each(function () {
+                    var val = parseFloat($(this).val());
+                    if (!isNaN(val)) {
+                        total += val;
+                    }
+                });
+                $('#finishSummaryTotal').text(total.toFixed(2));
+                $('#productionFinalTotal').val(total.toFixed(2));
+            }
+
+            // Initial calculation on load
+            calculateRawTotal();
+            calculateFinishTotal();
+
+            // Dynamic calculation on user input modification
+            $(document).on('input change', '.raw-weight-field', function () {
+                calculateRawTotal();
+            });
+
+            $(document).on('input change', '.finish-weight-field', function () {
+                calculateFinishTotal();
+            });
+
+            // --- RAW ITEMS MANAGEMENT ---
+            $('#btnAddRaw').on('click', function () {
+                var productId = $('#rawProductSelect').val();
+                var weight = $('#rawWeightInput').val();
+
+                if (!productId) {
+                    alert('Please select a raw product.');
+                    return;
+                }
+
+                var productName = getProductName(productId);
+                var tbody = $('#rawItemsTable tbody');
+
+                // Remove empty row if it exists
+                tbody.find('.empty-row').remove();
+
+                var defaultWeight = weight ? parseFloat(weight).toFixed(2) : "0.00";
+
+                var newRow = `
+                    <tr>
+                        <td>
+                            <strong>${productName}</strong>
+                            <input type="hidden" name="rawDetails[999].productId" value="${productId}" />
+                            <input type="hidden" name="rawDetails[999].Id" value="0" />
+                        </td>
+                        <td>
+                            <input type="number" name="rawDetails[999].weight" class="form-control text-right raw-weight-field" value="${defaultWeight}" step="any" required />
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm btnRemoveRaw"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+
+                tbody.append(newRow);
+                reindexRawTable();
+
+                // Clear input fields
+                $('#rawProductSelect').val('').trigger('change');
+                $('#rawWeightInput').val('');
+            });
+
+            $(document).on('click', '.btnRemoveRaw', function () {
+                $(this).closest('tr').remove();
+                reindexRawTable();
+            });
+
+            function reindexRawTable() {
+                var rows = $('#rawItemsTable tbody tr');
+                if (rows.length === 0 || (rows.length === 1 && rows.hasClass('empty-row'))) {
+                    $('#rawItemsTable tbody').html(`
+                        <tr class="empty-row">
+                            <td colspan="3" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                No raw items added yet.
+                            </td>
+                        </tr>
+                    `);
+                    calculateRawTotal();
+                    return;
+                }
+
+                rows.each(function (index, row) {
+                    if ($(row).hasClass('empty-row')) return;
+                    $(row).find('input[name*="rawDetails"]').each(function () {
+                        var name = $(this).attr('name');
+                        var newName = name.replace(/rawDetails\[\d+\]/, 'rawDetails[' + index + ']');
+                        $(this).attr('name', newName);
+                    });
+                });
+                calculateRawTotal();
+            }
+
+            // --- FINISH ITEMS MANAGEMENT ---
+            $('#btnAddFinish').on('click', function () {
+                var productId = $('#finishProductSelect').val();
+                var weight = $('#finishWeightInput').val();
+
+                if (!productId) {
+                    alert('Please select a finished product.');
+                    return;
+                }
+
+                var productName = getProductName(productId);
+                var tbody = $('#finishItemsTable tbody');
+
+                // Remove empty row if it exists
+                tbody.find('.empty-row').remove();
+
+                var defaultWeight = weight ? parseFloat(weight).toFixed(2) : "0.00";
+
+                var newRow = `
+                    <tr>
+                        <td>
+                            <strong>${productName}</strong>
+                            <input type="hidden" name="finishDetails[999].productId" value="${productId}" />
+                            <input type="hidden" name="finishDetails[999].Id" value="0" />
+                        </td>
+                        <td>
+                            <input type="number" name="finishDetails[999].weight" class="form-control text-right finish-weight-field" value="${defaultWeight}" step="any" required />
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm btnRemoveFinish"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+
+                tbody.append(newRow);
+                reindexFinishTable();
+
+                // Clear input fields
+                $('#finishProductSelect').val('').trigger('change');
+                $('#finishWeightInput').val('');
+            });
+
+            $(document).on('click', '.btnRemoveFinish', function () {
+                $(this).closest('tr').remove();
+                reindexFinishTable();
+            });
+
+            function reindexFinishTable() {
+                var rows = $('#finishItemsTable tbody tr');
+                if (rows.length === 0 || (rows.length === 1 && rows.hasClass('empty-row'))) {
+                    $('#finishItemsTable tbody').html(`
+                        <tr class="empty-row">
+                            <td colspan="3" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle fa-2x mb-2 d-block text-secondary"></i>
+                                No finish items added yet.
+                            </td>
+                        </tr>
+                    `);
+                    calculateFinishTotal();
+                    return;
+                }
+
+                rows.each(function (index, row) {
+                    if ($(row).hasClass('empty-row')) return;
+                    $(row).find('input[name*="finishDetails"]').each(function () {
+                        var name = $(this).attr('name');
+                        var newName = name.replace(/finishDetails\[\d+\]/, 'finishDetails[' + index + ']');
+                        $(this).attr('name', newName);
+                    });
+                });
+                calculateFinishTotal();
+            }
+
+            // Form validation
+            $('#productionForm').on('submit', function(e) {
+                var rawCount = $('#rawItemsTable tbody tr').not('.empty-row').length;
+                var finishCount = $('#finishItemsTable tbody tr').not('.empty-row').length;
+
+                if (rawCount === 0 && finishCount === 0) {
+                    alert('Please add at least one Raw Item or one Finish Item before saving.');
+                    e.preventDefault();
+                    return false;
+                }
+                return true;
+            });
+        });
+    });
+</script>

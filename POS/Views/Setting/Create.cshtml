@@ -1,0 +1,102 @@
+@model POS.Models.Setting
+
+@{
+    ViewData["Title"] = "Create Setting";
+}
+
+<div class="page-wrapper cardhead">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">@(Model?.Id > 0 ? "Update Setting" : "New Setting")</h4>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Save" method="post" enctype="multipart/form-data" class="needs-validation">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Name" class="form-label">Company Name</label>
+                                        <input asp-for="Name" class="form-control" placeholder="Enter Company Name" required />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter Phone Number" required />
+                                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Email" class="form-label">Email Address</label>
+                                        <input asp-for="Email" class="form-control" type="email" placeholder="Enter Email Address" required />
+                                        <span asp-validation-for="Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Address" class="form-label">Office Address</label>
+                                        <input asp-for="Address" class="form-control" placeholder="Enter Office Address" required />
+                                        <span asp-validation-for="Address" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Logo</label>
+                                        <input type="file" asp-for="httpPostedFile" class="form-control" accept="image/*" />
+                                        <input type="hidden" asp-for="logo" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3 text-center">
+                                        <label class="form-label d-block">Logo Preview</label>
+                                        <img id="logoPreview" src="@(string.IsNullOrEmpty(Model?.logo) ? "" : Url.Content(Model.logo))" alt="Logo Preview" style="max-height: 100px; max-width: 100%; border: 1px solid #ddd; padding: 5px; border-radius: 4px; display: @(string.IsNullOrEmpty(Model?.logo) ? "none" : "inline-block");" />
+                                        <span id="previewPlaceholder" style="color: #999; font-style: italic; display: @(string.IsNullOrEmpty(Model?.logo) ? "inline" : "none");">No logo uploaded yet</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" asp-for="Id" />
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> @(Model?.Id > 0 ? "Update" : "Save")
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('httpPostedFile').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('logoPreview');
+        const placeholder = document.getElementById('previewPlaceholder');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'inline-block';
+                placeholder.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            const currentLogo = document.getElementById('logo').value;
+            if (currentLogo) {
+                preview.src = currentLogo;
+                preview.style.display = 'inline-block';
+                placeholder.style.display = 'none';
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                placeholder.style.display = 'inline';
+            }
+        }
+    });
+</script>
