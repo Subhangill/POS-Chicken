@@ -1,4 +1,4 @@
-﻿using POS.Models;
+using POS.Models;
 
 namespace POS.ViewModel
 {

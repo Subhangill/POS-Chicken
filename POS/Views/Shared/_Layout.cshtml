@@ -16,8 +16,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="~/assets/img/apple-touch-icon.png">
 
     <!-- Favicon -->
-    <link rel="icon" href="~/assets/img/favicon.png" type="image/x-icon">
-    <link rel="shortcut icon" href="~/assets/img/favicon.png" type="image/x-icon">
+    <link rel="icon" href="~/assets/img/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="~/assets/img/favicon.ico" type="image/x-icon">
 
     <!-- Theme Script js -->
     @* 	<script src="~/assets/js/theme-script.js"></script>
@@ -25,6 +25,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" />
 
     <!-- Select2 CSS -->
     <link href="~/assets/css/select2.min.css" rel="stylesheet" />
@@ -66,43 +67,9 @@
     <link rel="stylesheet" href="~/assets/plugins/%40simonwep/pickr/themes/nano.min.css">
 
     <!-- Main CSS -->
-    <link rel="stylesheet" asp-append-version="true" href="~/assets/css/style.css">
+    <link rel="stylesheet" href="~/assets/css/style.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
 
-
-    <style>
-        /* Style for DataTable length menu select dropdown to prevent arrow overlapping the number */
-        .dataTables_length select {
-            width: auto !important;
-            min-width: 80px !important;
-            padding-right: 24px !important;
-            background-position: right 8px center !important;
-            background-size: 12px 12px !important;
-            display: inline-block !important;
-        }
-
-        /* Style for DataTable column search inputs */
-        thead input
-         {
-            width: 75% !important;
-            font-size: 11.5px !important;
-            padding: 4px 8px !important;
-            border-radius: 4px !important;
-            height: auto !important;
-        }
-
-     
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.location.pathname.toLowerCase().includes('/vehiclein/create')) {
-                document.body.classList.add('mini-sidebar');
-            }
-            // Initialize Select2 globally
-            if (window.jQuery && $.fn.select2) {
-                $('.search-select').select2({ width: '100%' });
-            }
-        });
-    </script>
 </head>
 
 <body>
@@ -119,11 +86,11 @@
             <div class="main-header">
 
                 <div class="header-left">
-                    <a asp-controller="Home" asp-action="Index"  class="logo">
-                        <img src="~/assets/img/logo.svg" alt="Logo">
+                    <a asp-controller="Home" asp-action="Index" class="logo">
+                        @* <img src="~/assets/img/new-logo.svg" alt="Logo"> *@POULTRY MANAGEMENT
                     </a>
-                    <a href="index.html" class="dark-logo">
-                        <img src="~/assets/img/logo-white.svg" alt="Logo">
+                    <a asp-controller="Home" asp-action="Index" class="dark-logo">
+                        @* <img src="~/assets/img/new-logo.svg" alt="Logo"> *@
                     </a>
                 </div>
 
@@ -286,7 +253,7 @@
                                                 <li><a href="invoices.html">Invoices</a></li>
                                             </ul>
                                         </li>
-                                      
+
                                     </ul>
                                 </div>
                             </div>
@@ -471,22 +438,22 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" >
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2">
                                                 <i class="ti ti-user-circle me-1"></i>My Profile
                                             </a>
-                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" >
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2">
                                                 <i class="ti ti-settings me-1"></i>Settings
                                             </a>
 
-                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" >
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2">
                                                 <i class="ti ti-circle-arrow-up me-1"></i>My Account
                                             </a>
-                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" >
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2">
                                                 <i class="ti ti-question-mark me-1"></i>Knowledge Base
                                             </a>
                                         </div>
                                         <div class="card-footer">
-                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" >
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2">
                                                 <i class="ti ti-login me-2"></i>Logout
                                             </a>
                                         </div>
@@ -516,16 +483,18 @@
         <div class="sidebar" id="sidebar">
             <!-- Logo -->
             <div class="sidebar-logo">
-                <a asp-action="Index" asp-controller="Home" class="logo logo-normal">
-                    <img src="~/assets/img/logo.svg" alt="Logo">
+                <a asp-action="Index" asp-controller="Home" class="logo logo-normal fw-bold">
+                    <img src="~/assets/img/poultry-logo-small.svg" alt="Logo">
+
                 </a>
-                <a href="index.html" class="logo-small">
-                    <img src="~/assets/img/logo-small.svg" alt="Logo">
+                <a asp-action="Index" asp-controller="Home" class="logo-small">
+                    <img src="~/assets/img/poultry-logo-small.svg" alt="Logo">
                 </a>
-                <a href="index.html" class="dark-logo">
-                    <img src="~/assets/img/logo-white.svg" alt="Logo">
+                <a asp-action="Index" asp-controller="Home" class="dark-logo">
+                    <img src="~/assets/img/poultry-logo-small.svg" alt="Logo">
                 </a>
             </div>
+            <hr />
             <!-- /Logo -->
             <div class="modern-profile p-3 pb-0">
                 <div class="text-center rounded bg-light p-3 mb-4 user-profile">
@@ -600,13 +569,13 @@
                                     </a>
                                 </li>
                                 <li class="submenu">
-                                    <a href="javascript:void(0);" >
+                                    <a href="javascript:void(0);">
                                         <i class="ti ti-forms"></i>
                                         <span>Registration</span>
                                         <span class="menu-arrow"></span>
                                     </a>
                                     <ul>
-                                        <li><a asp-controller="Area" asp-action="Index" >Area</a></li>
+                                        <li><a asp-controller="Area" asp-action="Index">Area</a></li>
                                         <li><a asp-controller="Product" asp-action="Index">Product</a></li>
                                         <li><a asp-controller="Vehicle" asp-action="Index">Vehicle</a></li>
                                         <li><a asp-controller="Customer" asp-action="Index">Customer</a></li>
@@ -614,7 +583,7 @@
                                         <li><a asp-controller="Employee" asp-action="Index">Employee</a></li>
                                     </ul>
                                 </li>
-                                <li class="submenu">
+                                @*     <li class="submenu">
                                     <a href="javascript:void(0); ">
                                         <i class="ti ti-truck"></i><span>Vehicle in/out</span>
                                         <span class="menu-arrow"></span>
@@ -623,26 +592,194 @@
                                      <ul>
                                         <li><a asp-controller="VehicleOut" asp-action="Index">Vehicle Out</a></li>
                                         <li><a asp-controller="VehicleIn" asp-action="Index">Vehicle In</a></li>
-                                       
+
                                     </ul>
-                                    </li>
+                                </li> *@
+                                <li class="menu-title"><span>Invoicing</span></li>
+                                <li class="submenu">
+                                    <a href="javascript:void(0);">
+                                        <i class="ti ti-shopping-cart"></i>
+                                        <span>Purchasing</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+
+                                    <ul>
+                                        <li>
+                                            <a asp-controller="SimplePurchase" asp-action="Index">
+                                                Raw Purchase
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Purchase" asp-action="Index">
+                                                Waste Receiving
+                                            </a>
+                                        </li>
+                                          <li>
+                                            <a asp-controller="FinishPurchase" asp-action="Index">
+                                                Finish Item Purchasing
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="submenu">
                                     <a href="javascript:void(0); ">
                                         <i class="ti ti-building-factory-2"></i><span>Production</span>
                                         <span class="menu-arrow"></span>
-
                                     </a>
-                                     <ul>
+                                    <ul>
                                         <li><a asp-controller="Production" asp-action="Index">Production</a></li>
                                     </ul>
-                                    </li>
+                                </li>
+                                <li class="submenu">
+                                    <a href="javascript:void(0);">
+                                        <i class="ti ti-shopping-cart"></i>
+                                        <span>Sale</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <ul>
+                                      @*   <li><a asp-controller="SimpleSale" asp-action="Index">Raw Sale</a></li> *@
+                                        <li><a asp-controller="Sale" asp-action="Index">Sale</a></li>
+                                    </ul>
+                                </li>
+                                <li class="menu-title"><span>Setup</span></li>
+                                <li class="submenu">
+                                    <a href="javascript:void(0);">
+                                        <i class="ti ti-credit-card"></i>
+                                        <span>Payment Setup</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <ul>
+                                        <li><a asp-controller="PaymentSetup" asp-action="Index">Make Suppliers Payments</a></li>
+                                    </ul>
+                                </li>
+                                    <li class="menu-title"><span>Reporting</span></li>
+                                <li class="submenu">
+    <a href="javascript:void(0);">
+        <i class="ti ti-report-analytics"></i>
+        <span>Reports</span>
+        <span class="menu-arrow"></span>
+    </a>
+    <ul>
+        <li><a asp-controller="PurchaseReport" asp-action="Index">Purchase Report</a></li>
+        <li><a asp-controller="SaleReport" asp-action="Index">Sale Report</a></li>
+        <li><a asp-controller="WasteReceivingReport" asp-action="Index">Waste Report</a></li>
+        <li><a asp-controller="StockReport" asp-action="Index">Raw Stock Report</a></li>
+        <li><a asp-controller="StockReport" asp-action="Index1">Finish Stock Report</a></li>
+    </ul>
+</li>
+
+                                <li class="menu-title"><span>Accounting</span></li>
+                                <li class="submenu">
+                                    <a href="javascript:void(0);">
+                                        <i class="ti ti-building-bank"></i>
+                                        <span>Accounts</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+
+                                    <ul>
+
+                                        <!-- ACCOUNTS SETUP -->
+                                        <li class="submenu">
+                                            <a href="javascript:void(0);">
+                                                <span>Accounts Setup</span>
+                                                <span class="menu-arrow"></span>
+                                            </a>
+
+                                            <ul>
+                                                <li>
+                                                    <a asp-controller="Account" asp-action="Index">
+                                                        Account Registration
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a asp-controller="SubHead" asp-action="Index">
+                                                        Account Sub Heads
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="AccountOpening" asp-action="Index">
+                                                        Account Opening
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- VOUCHERS -->
+                                        <li class="submenu">
+                                            <a href="javascript:void(0);">
+                                                <span>Payment Vouchers</span>
+                                                <span class="menu-arrow"></span>
+                                            </a>
+
+                                            <ul>
+                                                <li>
+                                                    <a asp-controller="CashPayment" asp-action="Index">
+                                                        Cash Payment
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a asp-controller="CashReceipt" asp-action="Index">
+                                                        Cash Receipt
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a asp-controller="BankPayment" asp-action="Index">
+                                                        Bank Payment
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="BankReceipt" asp-action="Index">
+                                                        Bank Receipt
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-controller="JournalVoucher" asp-action="Index">
+                                                        Journal Voucher
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="submenu">
+                                            <a href="javascript:void(0);">
+                                                <span>Account Ledger</span>
+                                                <span class="menu-arrow"></span>
+                                            </a>
+                                            <ul>
+                                                <li>
+                                                    <a asp-controller="Ledger" asp-action="Index">
+                                                        Ledger
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="menu-title"><span>User Management</span></li>
+
+                                <li class="submenu">
+                                    <a href="javascript:void(0);">
+                                        <i class="ti ti-users"></i>
+                                        <span>User Management</span>
+                                        <span class="menu-arrow"></span>
+                                    </a>
+                                    <ul>
+                                        <li><a asp-controller="Role" asp-action="Index">Roles</a></li>
+                                        <li><a asp-controller="UserManagement" asp-action="Index">Users</a></li>
+                                        <li><a asp-controller="RoleAssign" asp-action="Index">User Permissions</a></li>
+                                    </ul>
+                                </li>
+                                <li class="menu-title"><span>App Settings</span></li>
                                 <li>
                                     <a asp-controller="Setting" asp-action="Create">
                                         <i class="ti ti-settings"></i>
-                                        <span>Setting</span>
+                                        <span>General Settings</span>
                                     </a>
                                 </li>
-                                  </ul> 
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -3331,8 +3468,8 @@
     <script src="~/assets/plugins/apexchart/chart-data.js"></script>
 
     <!-- Chart JS -->
-    <script src="~/assets/plugins/chartjs/chart.min.js"></script>
-    <script src="~/assets/plugins/chartjs/chart-data.js"></script>
+@*     <script src="~/assets/plugins/chartjs/chart.min.js"></script>
+    <script src="~/assets/plugins/chartjs/chart-data.js"></script> *@
 
     <!-- Datetimepicker JS -->
     <script src="~/assets/js/moment.min.js"></script>
@@ -3354,14 +3491,54 @@
     <script src="~/assets/js/sweetalert2.min.js"></script>
     <!-- Color Picker JS -->
     <script src="~/assets/plugins/%40simonwep/pickr/pickr.es5.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
     <!-- Custom JS -->
     <script src="~/assets/js/todo.js"></script>
     <script src="~/assets/js/theme-colorpicker.js"></script>
     <script src="~/assets/js/script.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-  
-    @if (TempData["save"] != null)
+    <script>
+        @if (TempData["save"] != null)
+          {
+                        <text>
+                                          iziToast.success({
+                                              icon: 'fa fa-check-circle',
+                                          title: 'Success!',
+                                                    message: '@TempData["save"]',
+                                          position: 'topRight',
+                                          timeout: 5000,
+                                          progressBarColor: '#4CAF50',
+                                          onOpening: function() {
+                                              $('.iziToast').last().css({
+                                                  'margin-top': '80px',
+                                                  'opacity': '1'
+                                              });
+                                                                          }
+                                                                      });
+                      </text>
+          }
+  @if (TempData["error"] != null)
+              {
+                                           <text>
+                                                    iziToast.error({
+                                                        icon: 'fa fa-times-circle',
+                                                    title: 'Error!',
+                                                              message: '@TempData["error"]',
+                                                    position: 'topRight',
+                                                    timeout: 5000,
+                                                    progressBarColor: '#F44336',
+                                                    onOpening: function() {
+                                                        $('.iziToast').last().css({
+                                                            'margin-top': '80px',
+                                                            'opacity': '1'
+                                                        });
+                                                                                    }
+                                                                                });
+                                </text>
+              }
+    </script>
+    @*     @if (TempData["save"] != null)
     {
         <script>
             Swal.fire({
@@ -3371,8 +3548,8 @@
                 confirmButtonText: 'OK',
             });
         </script>
-    }
-
+    } *@
+    @* 
     @if (TempData["error"] != null)
     {
         <script>
@@ -3383,74 +3560,17 @@
                 confirmButtonText: 'OK'
             });
         </script>
-    }
+    } *@
 
 
 
-    <script>
-        $(document).ready(function () {
-            $('table.datatable, #vehicleInIndexTable').each(function () {
-                var $table = $(this);
 
-                if ($.fn.DataTable.isDataTable(this)) {
-                    return;
-                }
-
-                var table = $table.DataTable({
-                    destroy: true, 
-                    "searching": true,
-                    "ordering": true,
-                    "info": true,
-                    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                    dom: "<'row mb-2'<'col-sm-12 d-flex align-items-center justify-content-between flex-wrap gap-3'<'d-flex align-items-center flex-wrap gap-3'Bl>>>" +
-                         "<'row'<'col-sm-12'tr>>" +
-                         "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-                    buttons: [
-                        { extend: 'copy', className: 'btn btn-secondary btn-sm' },
-                        { extend: 'csv', className: 'btn btn-secondary btn-sm' },
-                        { extend: 'excel', className: 'btn btn-secondary btn-sm' },
-                        { extend: 'pdf', className: 'btn btn-secondary btn-sm' },
-                        { extend: 'print', className: 'btn btn-secondary btn-sm' }
-                    ],
-                    "language": {
-                        search: '',
-                        sLengthMenu: 'Show _MENU_ Entries',
-                        searchPlaceholder: "Search...",
-                        info: "Showing _START_ - _END_ of _TOTAL_ entries",
-                        paginate: {
-                            next: '<i class="ti ti-chevron-right"></i>',
-                            previous: '<i class="ti ti-chevron-left"></i> '
-                        }
-                    }
-                });
-
-                // Apply column-specific filter events to manually placed search inputs inside all thead rows
-                $table.find('thead input.col-search').off('keyup change').on('keyup change', function () {
-                    var colIdx = $(this).closest('th').index();
-                    if (table.column(colIdx).search() !== this.value) {
-                        table
-                            .column(colIdx)
-                            .search(this.value)
-                            .draw();
-                    }
-                });
-
-                // Bind custom manual global search box if present on the page
-                var $customSearch = $('.manual-global-search');
-                if ($customSearch.length > 0) {
-                    $customSearch.off('keyup input').on('keyup input', function () {
-                        table.search(this.value).draw();
-                    });
-                }
-            });
-        });
-    </script>
     <script>
         function btnclick(){
                 document.getElementById("toggle_btn").click();
         }
     </script>
-
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

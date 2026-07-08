@@ -1,0 +1,58 @@
+@model List<UserLogin>
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center ">
+                        <h3 class="card-title mb-0"><i class="fas fa-users mr-2"></i>User Management</h3>
+                        <a asp-action="Create" class="btn btn-primary rounded"><i class="fa fa-plus mr-1"></i> Add New</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table datatable table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="60" class="text-center">Sr</th>
+                                        <th>Username</th>
+                                        <th>Employee </th>
+                                        <th>Role </th>
+                                        <th width="10" class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <thead class="custom">
+                                    <tr>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int SR = 1;
+                                    }
+                                    @foreach (var items in Model)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@SR</td>
+                                            <td class="text">@items.Username</td>
+                                            <td class="text">@items.Empname</td>
+                                            <td class="text">@items.Rolename</td>
+                                            <td class="text-center">
+                                                <a asp-action="Edit" asp-route-id="@items.Id" class="btn btn-primary btn-sm" title="Edit"><i class="fas fa-pencil"></i></a>
+                                            </td>
+                                        </tr>
+                                        SR++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

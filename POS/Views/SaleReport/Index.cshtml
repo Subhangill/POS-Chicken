@@ -1,0 +1,236 @@
+﻿@model ReportVm
+@{
+    int sr = 1;
+}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-boxes text-dark me-2"></i>
+                            Sale Report
+                        </h3>
+                        @* <div>
+                            <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                                <i class="fa fa-file-excel"></i> Excel
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="exportToPDF()">
+                                <i class="fa fa-file-pdf"></i> PDF
+                            </button>
+                        </div> *@
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Filter Form -->
+                        <form asp-action="Index" method="post">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1">From Date</label>
+                                    <input type="date" asp-for="Sreportfilter.From"
+                                           value="@(Model.Sreportfilter.From.ToString("yyyy-MM-dd"))"
+                                           class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1">To Date</label>
+                                    <input type="date" asp-for="Sreportfilter.To"
+                                           value="@(Model.Sreportfilter.To.ToString("yyyy-MM-dd"))"
+                                           class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label mb-1">Customer</label>
+                                    <select asp-for="Sreportfilter.Cid" class="form-control search-select">
+                                        <option value="0">All Customers</option>
+                                        @foreach (var itm in Model.Customerlist)
+                                        {
+                                            <option value="@itm.Id">@(itm.Name)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4" id="itemdiv" style="display:@(Model.Sreportfilter.Rtype == 0 ? "none" : "block")">
+                                    <label class="form-label mb-1">Product</label>
+                                    <select id="itemlist" asp-for="Sreportfilter.Pid" class="form-control search-select">
+                                        <option value="0">All Products</option>
+                                        @foreach (var itm in Model.Productlist)
+                                        {
+                                            <option value="@itm.Id">@(itm.Name)</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-end mb-3">
+
+                                <div class="col-md-5">
+                                    <label class="form-label d-block mb-2">Report Type</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input asp-for="Sreportfilter.Rtype" onchange="loaddiv(this.value)" class="form-check-input" type="radio"
+                                                   id="invoice" value="0" />
+                                            <label class="form-check-label" for="invoice">Invoice Summary</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input asp-for="Sreportfilter.Rtype" onchange="loaddiv(this.value)" class="form-check-input" type="radio"
+                                                   id="item" value="1" />
+                                            <label class="form-check-label" for="item">Item Detail</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <button value="true" name="Sreportfilter.IsSearch" type="submit" class="btn btn-primary">
+                                        <i class="fa fa-search me-1"></i> Show Report
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <hr class="border border-dark" />
+
+                        <!-- Summary Statistics -->
+                        <div class="row ">
+                            <div class="col-md-12">
+                                <div class="card bg-light">
+                                    <div class="card-body p-1">
+                                        <div class="row text-center">
+                                            @if (Model.Sreportfilter.Rtype == 0)
+                                            {
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Total Invoices</h6>
+                                                    <h5 class="mb-0 text-primary fw-bold">@(Model.SreportInvoiceSummarylist.Count)</h5>
+                                                </div>
+
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Total Sale</h6>
+                                                    <h5 class="mb-0 text-danger fw-bold">@(Model.SreportInvoiceSummarylist.Sum(e => e.Grosstotal).ToString("N2"))</h5>
+                                                </div>
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Discount</h6>
+                                                    <h5 class="mb-0 text-danger fw-bold">@(Model.SreportInvoiceSummarylist.Sum(e => e.Discount).ToString("N2"))</h5>
+                                                </div>
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Net Amount</h6>
+                                                    <h5 class="mb-0 fw-bold">@(Model.SreportInvoiceSummarylist.Sum(e => e.Nettotal).ToString("N2"))</h5>
+                                                </div>
+                                            }
+                                            else
+                                            {
+
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Total Items</h6>
+                                                    <h5 class="mb-0 text-info fw-bold">@(Model.SreportItemDetaillist.Count)</h5>
+                                                </div>
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Total Weight (Kg)</h6>
+                                                    <h5 class="mb-0 text-success fw-bold">@(Model.SreportItemDetaillist.Sum(e => e.Qty).ToString("N2"))</h5>
+                                                </div>
+                                                <div class="col-md-3 col-6">
+                                                    <h6 class="text-muted ">Net Amount</h6>
+                                                    <h5 class="mb-0 fw-bold">@(Model.SreportItemDetaillist.Sum(e => e.Total).ToString("N2"))</h5>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modern Bootstrap Table -->
+                        <div class="table-responsive" style="max-height: 580px; overflow-y: auto;">
+                            <table class="table datatable-report table-bordered align-middle">
+                                @if (Model.Sreportfilter.Rtype == 0)
+                                {
+                                    <!-- Invoice Summary -->
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Invoice No</th>
+                                            <th>Date</th>
+                                            <th>Supplier</th>
+                                            <th class="text-center">Gross Amount</th>
+                                            <th class="text-center">Dis Amount</th>
+                                            <th class="text-center">Net Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var itm in Model.SreportInvoiceSummarylist)
+                                        {
+                                            <tr>
+                                                <td>@itm.Id</td>
+                                                <td>@itm.Date.ToString("dd-MMM-yy")</td>
+                                                <td>@itm.Custname</td>
+                                                <td class="text-end">@itm.Grosstotal.ToString("N2")</td>
+                                                <td class="text-end ">@itm.Discount.ToString("N2")</td>
+                                                <td class="text-end fw-bold">@itm.Nettotal.ToString("N2")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                }
+                                else
+                                {
+                                    <!-- Item Detail -->
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th style="width:60px">Sr</th>
+                                            <th>Item Name</th>
+                                            <th class="text-center">Weight</th>
+                                            <th class="text-center">Total Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var itm in Model.SreportItemDetaillist)
+                                        {
+                                            <tr>
+                                                <td>@sr</td>
+                                                <td>@itm.Pname</td>
+                                                <td class="text-end">@itm.Qty</td>
+                                                <td class="text-end fw-bold">@itm.Total</td>
+                                            </tr>
+                                            sr++;
+                                        }
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loaditems(id) {
+            var cid = parseInt(id) === 0 ? 3 : 4;
+            $.ajax({
+                url: "/PurchaseReport/GetItems",
+                type: "GET",
+                data: { cid: cid },
+                success: function (data) {
+                    $("#itemlist").empty();
+                    $("#itemlist").append(`<option value="0">All Products</option>`);
+                    $.each(data, function (index, item) {
+                        $("#itemlist").append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+                }
+            });
+        }
+                function loaddiv(id) {
+            if(id==0){
+            document.getElementById("itemdiv").style.display="none";
+            }else{
+                document.getElementById("itemdiv").style.display="block";
+            }
+
+
+        }
+        function exportToExcel() {
+            alert("Exporting to Excel... (Connect with backend later)");
+        }
+
+        function exportToPDF() {
+            alert("Exporting to PDF... (Connect with backend later)");
+        }
+    </script>
+}

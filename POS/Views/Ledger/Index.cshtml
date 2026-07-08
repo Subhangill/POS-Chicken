@@ -1,0 +1,373 @@
+﻿@model AccountVm
+@{
+    decimal runningbalance = Model.Ledger.Opening;
+}
+
+<style>
+    /* Result Table Styles Only */
+    .result-table {
+        border-color: #ddd !important;
+        font-size: 12px;
+        margin-bottom: 0;
+    }
+
+        .result-table thead tr th {
+            background-color: #f8f9fa !important;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 6px 8px;
+            border-color: #ddd !important;
+            color: #000;
+        }
+
+        .result-table tbody tr td {
+            padding: 5px 8px;
+            border-color: #ddd !important;
+            font-weight: 400;
+            font-size: 12px;
+            color: #000;
+            vertical-align: middle;
+        }
+
+        .result-table tfoot tr td {
+            padding: 6px 8px;
+            border-color: #ddd !important;
+            font-weight: 600;
+            font-size: 12px;
+            color: #000;
+            background-color: #f8f9fa;
+        }
+
+        .result-table th.detail-col,
+        .result-table td.detail-col {
+            width: 300px;
+            min-width: 300px;
+            max-width: 300px;
+            white-space: normal;
+            word-break: break-word;
+            font-size: 11px;
+            font-weight: 400;
+            padding: 5px 8px;
+        }
+
+        .result-table th.text-center,
+        .result-table td.text-center {
+            text-align: center !important;
+        }
+
+        .result-table th.text-end,
+        .result-table td.text-end {
+            text-align: right !important;
+        }
+
+        .result-table .fw-bold {
+            font-weight: 600 !important;
+        }
+
+    .result-card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+        .result-card .card-body {
+            padding: 15px;
+        }
+
+        .result-card .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 15px;
+        }
+
+            .result-card .card-header h3 {
+                font-size: 14px;
+                font-weight: 600;
+                margin: 0;
+            }
+
+    .result-table-responsive {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    /* Keep filter styles separate */
+    .filter-card .card-header {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 15px;
+    }
+
+        .filter-card .card-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .filter-card .card-body {
+        padding: 12px 15px;
+    }
+
+    .filter-card .form-label {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-control-sm {
+        font-size: 13px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border-color: #ddd;
+    }
+
+    .filter-card .btn {
+        border-radius: 4px;
+        font-size: 13px;
+        padding: 6px 15px;
+    }
+
+    /* Print Styles */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+
+        #print-area, #print-area * {
+            visibility: visible;
+        }
+
+        #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        .result-table {
+            border-color: #000 !important;
+        }
+
+            .result-table thead tr th {
+                background-color: #fff !important;
+                border-color: #000 !important;
+            }
+
+            .result-table tbody tr td {
+                border-color: #000 !important;
+            }
+
+            .result-table tfoot tr td {
+                background-color: #fff !important;
+                border-color: #000 !important;
+            }
+
+        .result-card {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+
+        .result-table-responsive {
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <!-- Filter Card -->
+            <div class="col-sm-12 no-print">
+                <div class="card filter-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-filter mr-2"></i> Account Ledger Filter</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Index" method="post" class="row align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Account <i class="text-danger">*</i></label>
+                                <select asp-for="Ledger.AccountId" class="search-select form-control" required>
+                                    <option value="">--Select Account--</option>
+                                    @foreach (var itm in Model.Accountlist)
+                                    {
+                                        <option value="@itm.AccountNo">@(itm.Name ?? "")</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">From Date</label>
+                                <input type="date" name="Ledger.From" class="form-control" value="@(Model.Ledger.From.ToString("yyyy-MM-dd"))" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">To Date</label>
+                                <input type="date" name="Ledger.To" class="form-control" value="@(Model.Ledger.To.ToString("yyyy-MM-dd"))" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" name="Ledger.IsSearch" value="true" class="btn btn-primary w-100">
+                                    <i class="fa fa-search"></i> Filter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            @if (Model.Ledger.IsSearch && Model.LedgerResultlist != null)
+            {
+                <div class="col-sm-12 mt-1">
+                    <!-- Print Button -->
+                    @if (Model.LedgerResultlist.Count > 0)
+                    {
+                        <div class="d-flex justify-content-end no-print">
+                            <button type="button" onclick="printResult()" class="btn btn-primary">
+                                <i class="fa fa-print"></i> Print
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Result Card -->
+                    <div class="card result-card" id="print-area">
+                        <div class="card-body">
+                            <!-- Account Info -->
+                            <div class="text-center mb-3">
+                                <h4 class="mb-1" style="font-size:16px; font-weight:600;">@(Model.Ledger.Accountname)</h4>
+                                <h6 style="font-size:13px; font-weight:400; color:#666;">Account No: <span style="font-weight:600;">@(Model.Ledger.AccountId)</span></h6>
+                            </div>
+
+                            <div class="result-table-responsive">
+                                <table class="table table-bordered result-table">
+                                    <!-- Opening Balance Header -->
+                                    <thead>
+                                        <tr>
+                                            <th colspan="5"></th>
+                                            <th class="text-center">
+                                                @{
+                                                    var opnText = "0";
+                                                    if (Model.Ledger.HeadId == 5 || Model.Ledger.HeadId == 1)
+                                                    {
+                                                        opnText = Model.Ledger.Opening > 0 ? $"OPN ({Model.Ledger.Opening}) Dr" :
+                                                        Model.Ledger.Opening < 0 ? $"OPN ({Math.Abs(Model.Ledger.Opening)}) Cr" : "0";
+                                                    }
+                                                    else if (Model.Ledger.HeadId == 2 || Model.Ledger.HeadId == 3 || Model.Ledger.HeadId == 4)
+                                                    {
+                                                        opnText = Model.Ledger.Opening > 0 ? $"OPN ({Model.Ledger.Opening}) Cr" :
+                                                        Model.Ledger.Opening < 0 ? $"OPN ({Math.Abs(Model.Ledger.Opening)}) Dr" : "0";
+                                                    }
+                                                    <span>@opnText</span>
+                                                }
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <!-- Column Headers -->
+                                    <thead>
+                                        <tr>
+                                            <th>T.ID</th>
+                                            <th>Date</th>
+                                            <th class="detail-col">Detail</th>
+                                            <th>Dr</th>
+                                            <th>Cr</th>
+                                            <th>Balance</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @if (Model.LedgerResultlist.Count > 0)
+                                        {
+                                            foreach (var itm in Model.LedgerResultlist)
+                                            {
+                                                // Update running balance based on head type
+                                                if (Model.Ledger.HeadId == 5 || Model.Ledger.HeadId == 1)
+                                                    runningbalance += itm.Dr - itm.Cr;
+                                                else if (Model.Ledger.HeadId == 2 || Model.Ledger.HeadId == 3 || Model.Ledger.HeadId == 4)
+                                                    runningbalance += itm.Cr - itm.Dr;
+
+                                                <tr>
+                                                    <td class="text-center">@itm.TransId</td>
+                                                    <td class="text-center">@itm.Date.ToString("dd-MMM-yy")</td>
+                                                    <td class="text-start detail-col">@(string.IsNullOrWhiteSpace(itm.Detail) ? "N/A" : itm.Detail)</td>
+                                                    <td class="text-end">@itm.Dr.ToString("N2")</td>
+                                                    <td class="text-end">@itm.Cr.ToString("N2")</td>
+                                                    <td class="text-end">
+                                                        @{
+                                                            var balanceText = "0";
+                                                            if (Model.Ledger.HeadId == 5 || Model.Ledger.HeadId == 1)
+                                                            {
+                                                                balanceText = runningbalance > 0 ? $"{runningbalance:N2} Dr" :
+                                                                runningbalance < 0 ? $"{Math.Abs(runningbalance):N2} Cr" : "0";
+                                                            }
+                                                            else if (Model.Ledger.HeadId == 2 || Model.Ledger.HeadId == 3 || Model.Ledger.HeadId == 4)
+                                                            {
+                                                                balanceText = runningbalance > 0 ? $"{runningbalance:N2} Cr" :
+                                                                runningbalance < 0 ? $"{Math.Abs(runningbalance):N2} Dr" : "0";
+                                                            }
+                                                            <span>@balanceText</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr><td colspan="6" class="text-center">No data found..</td></tr>
+                                        }
+                                    </tbody>
+
+                                    <!-- Footer Totals -->
+                                    @if (Model.LedgerResultlist.Count > 0)
+                                    {
+                                        var totalDr = Model.LedgerResultlist.Sum(e => e.Dr);
+                                        var totalCr = Model.LedgerResultlist.Sum(e => e.Cr);
+                                        var finalBalance = 0m;
+                                        var balanceType = "";
+
+                                        if (Model.Ledger.HeadId == 5 || Model.Ledger.HeadId == 1)
+                                        {
+                                            finalBalance = runningbalance;
+                                            balanceType = finalBalance > 0 ? "Dr" : finalBalance < 0 ? "Cr" : "";
+                                        }
+                                        else if (Model.Ledger.HeadId == 2 || Model.Ledger.HeadId == 3 || Model.Ledger.HeadId == 4)
+                                        {
+                                            finalBalance = runningbalance;
+                                            balanceType = finalBalance > 0 ? "Cr" : finalBalance < 0 ? "Dr" : "";
+                                        }
+
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="3" class="text-center fw-bold">Total</td>
+                                                <td class="text-center">@totalDr.ToString("N2")</td>
+                                                <td class="text-center">@totalCr.ToString("N2")</td>
+                                                <td class="text-center">
+                                                    @if (finalBalance != 0)
+                                                    {
+                                                        <span>@Math.Abs(finalBalance).ToString("N2") @balanceType</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>0</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function printResult() {
+        window.print();
+    }
+</script>

@@ -1,0 +1,55 @@
+﻿@model Account_SubHead
+
+<div class="page-wrapper">
+    <div class="content">
+        <!-- /Page Header -->
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">@(Model.Id > 0 ? "Update Account Sub Head" : "Add Account Sub Head")</h4>
+                        <a asp-action="Index" class="btn btn-primary rounded "><i class="fa fa-list mr-1"></i>  List</a>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" asp-controller="SubHead" asp-action="Save">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="HeadId">Account Head</label>
+                                        <select required class="form-control form-select" asp-for="HeadId">
+                                            <option value="">--Select Account Head--</option>
+                                            <option value="1">Asset</option>
+                                            <option value="2">Liability</option>
+                                            <option value="3">Capital</option>
+                                            <option value="4">Revenue</option>
+                                            <option value="5">Expense</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Name">Name</label>
+                                        <input placeholder="Enter title...." required class="form-control" asp-for="Name" />
+                                        <input type="hidden" class="form-control" asp-for="Id" />
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-center mt-5">
+                                    <div class="form-group">
+                                        <button class="btn col-1 btn-primary" type="submit">
+                                            @(Model.Id > 0 ? "Update" : "Save")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

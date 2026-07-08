@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using POS.Data;
 using POS.Data.Service;
@@ -7,6 +8,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace POS.Controllers
 {
@@ -15,9 +18,11 @@ namespace POS.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserLog _userLog;
         private readonly int _userId;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductionController(ApplicationDbContext context, UserLog userLog)
+        public ProductionController(ApplicationDbContext context, UserLog userLog, IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
             _userId = UserHelper.GetCurrentUserId();
             _context = context;
             _userLog = userLog;
@@ -57,7 +62,7 @@ namespace POS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Save(ProductionVM vm)
+        public async Task<IActionResult> Save(ProductionVM vm)
         {
             try
             {
@@ -154,6 +159,46 @@ namespace POS.Controllers
 
                 TempData["save"] = ms;
                 _context.SaveChanges();
+
+                if (vm.production.ImageFile != null && vm.production.ImageFile.Length > 0)
+                {
+                    string folder = Path.Combine(_webHostEnvironment.WebRootPath, "Images");
+
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
+
+                    if (Action == "Edit")
+                    {
+                        var existingImage = _context.ImagesDetail.FirstOrDefault(x => x.Recordid == vm.production.Id && x.Invtype == "Production");
+                        if (existingImage != null)
+                        {
+                            string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, existingImage.ImagePath.TrimStart('/'));
+                            if (System.IO.File.Exists(oldFilePath))
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                            _context.ImagesDetail.Remove(existingImage);
+                        }
+                    }
+
+                    string extension = Path.GetExtension(vm.production.ImageFile.FileName);
+                    string fileName = $"Production_{vm.production.Id}{extension}";
+                    string filePath = Path.Combine(folder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await vm.production.ImageFile.CopyToAsync(stream);
+                    }
+
+                    _context.ImagesDetail.Add(new ImagesDetail
+                    {
+                        ImagePath = "/Images/" + fileName,
+                        Recordid = vm.production.Id,
+                        Invtype = "Production"
+                    });
+
+                    await _context.SaveChangesAsync();
+                }
                 _userLog.SaveHistory("Production", Action, detail);
                 return RedirectToAction("Index");
             }
@@ -167,6 +212,12 @@ namespace POS.Controllers
         {
             var dbProduction = _context.Production.Find(id);
             if (dbProduction == null) return NotFound();
+
+            var imageDetail = _context.ImagesDetail.FirstOrDefault(x => x.Recordid == id && x.Invtype == "Production");
+            if (dbProduction != null)
+            {
+                dbProduction.ImagePath = imageDetail?.ImagePath;
+            }
 
             var vm = new ProductionVM
             {

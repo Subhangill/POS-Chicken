@@ -1,0 +1,45 @@
+@model Role
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center ">
+                        <h3 class="card-title mb-0"><i class="fas fa-user-tag mr-2"></i>@(Model.Id > 0 ? "Update Role" : "Add Role")</h3>
+                        <a asp-action="Index" class="btn btn-primary rounded"><i class="fa fa-list mr-1"></i> List</a>
+                    </div>
+                    <div class="card-body">
+    <form asp-action="Save" method="post" enctype="multipart/form-data"  >
+                            <input asp-for="Id" type="hidden" />
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label asp-for="Name" class="form-label">
+                                        Name <span class="text-danger">*</span>
+                                    </label>
+
+                                    <input asp-for="Name"
+                                           class="form-control"
+                                           placeholder="Enter name"
+                                           required />
+
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="ti ti-device-floppy me-1"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+</style>

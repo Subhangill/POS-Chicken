@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="50" viewBox="0 0 180 50">
+  <g transform="translate(5,3)">
+    <path d="M26 35
+             C18 35 12 30 12 22
+             C12 15 18 10 25 10
+             C27 6 32 4 37 5
+             C44 6 48 11 48 18
+             C52 19 55 23 55 28
+             C55 34 50 38 44 38
+             L26 35 Z"
+          fill="black"/>
+    <circle cx="35" cy="7" r="3" fill="#F26522"/>
+    <circle cx="40" cy="6" r="3" fill="#F26522"/>
+    <circle cx="45" cy="8" r="3" fill="#F26522"/>
+    <path d="M53 21 L62 24 L53 27 Z" fill="#F26522"/>
+    <circle cx="42" cy="18" r="1.8" fill="white"/>
+  </g>
+
+  <text x="72" y="22"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="14"
+        font-weight="700"
+        fill="black">POULTRY</text>
+
+  <text x="72" y="38"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="9"
+        font-weight="900"
+        fill="#F26522">MANAGEMENT SYSTEM</text>
+</svg>

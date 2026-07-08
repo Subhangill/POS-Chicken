@@ -15,6 +15,7 @@ namespace POS.Data.Service
         {
             try
             {
+                int userid = UserHelper.GetCurrentUserId();
                 using (SqlConnection conn = new SqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO UserLog (Time, UserId, Form, Action, Detail) 
@@ -24,7 +25,7 @@ namespace POS.Data.Service
                     {
                         // Add parameters (prevents SQL injection)\
                         cmd.Parameters.AddWithValue("@Time", AppDate.Now);
-                        cmd.Parameters.AddWithValue("@UserId", 1);
+                        cmd.Parameters.AddWithValue("@UserId", userid);
                         cmd.Parameters.AddWithValue("@Form", form ?? "");
                         cmd.Parameters.AddWithValue("@Action", action ?? "");
                         cmd.Parameters.AddWithValue("@Detail", detail ?? "");

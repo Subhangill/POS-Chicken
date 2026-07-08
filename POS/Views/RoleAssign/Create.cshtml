@@ -1,0 +1,248 @@
+﻿@model UserVm
+
+@{
+    ViewData["Title"] = "Role Assignment";
+}
+
+<!-- jstree CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+
+<style>
+    .role-assign-card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .role-assign-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        padding: 1.5rem;
+    }
+
+    #jstree-container {
+        padding: 20px;
+        background: #fdfdfd;
+        border: 1px solid #edf0f5;
+        border-radius: 10px;
+        min-height: 400px;
+    }
+    /* Customize jstree for professional look */
+    .jstree-default .jstree-anchor {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .jstree-default .jstree-clicked {
+        background: #e9ecef;
+        border-radius: 4px;
+    }
+
+    .jstree-default .jstree-hovered {
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .save-btn {
+        background: #4e73df;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .save-btn:hover {
+            background: #2e59d9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+        }
+</style>
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card role-assign-card border-0 shadow-lg">
+                    <div class="role-assign-header">
+                        <div class="d-flex align-items-center">
+                            <div class="mr-3 p-3 bg-white-50 rounded-circle text-white">
+                                <i class="fas fa-user-shield fa-2x"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-0 text-white font-weight-bold">Role Assignment</h3>
+                                <p class="mb-0 text-white-50">Manage access permissions for system roles</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <form asp-controller="RoleAssign" asp-action="Save" method="post" id="roleAssignForm">
+                            <input type="hidden" name="isUpdate" value="@(ViewBag.IsUpdate == true ? "true" : "false")" />
+                            <div class="row mb-5">
+                                <div class="col-md-6">
+                                    <label class="text-xs font-weight-bold text-primary text-uppercase mb-2 d-block">System Role</label>
+                                    <div class="form-group position-relative">
+                                        <select class="form-control select2" required id="RoleId" name="RoleId" @(ViewBag.IsUpdate == true ? "disabled" : "")>
+                                            <option value="">Select a Role...</option>
+                                            @foreach (var role in Model.Rolelist)
+                                            {
+                                                @if (Model.RoleAssign != null && Model.RoleAssign.RoleId == role.Id)
+                                                {
+                                                    <option value="@role.Id" selected>@role.Name</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@role.Id">@role.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                        @if (ViewBag.IsUpdate == true)
+                                        {
+                                            <input type="hidden" name="RoleId" value="@Model.RoleAssign.RoleId" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <label class="text-xs font-weight-bold text-primary text-uppercase mb-0">Permission Tree</label>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-info" onclick="$('#jstree-container').jstree('open_all');">Expand All</button>
+                                        <button type="button" class="btn btn-outline-info" onclick="$('#jstree-container').jstree('close_all');">Collapse All</button>
+                                    </div>
+                                </div>
+
+                                <div id="jstree-container">
+                                    <ul>
+                                        <li data-jstree='{"opened":true, "icon":"fas fa-globe text-primary"}'>
+                                            <strong>Full Control</strong>
+                                            <ul>
+                                                @foreach (var head in Model.FormHeadlist.OrderBy(h => h.Sr))
+                                                {
+                                                    <li data-jstree='{"icon":"fas fa-folder text-warning"}'>
+                                                        @head.Name
+                                                        <ul>
+                                                            @foreach (var form in Model.Formlist.Where(f => f.HeadId == head.Id).OrderBy(f => f.Sr))
+                                                            {
+                                                                <li data-jstree='{"icon":"fas fa-file-alt text-info"}'>
+                                                                    @form.FormName
+                                                                    <ul>
+                                                                        @foreach (var action in Model.FormActionlist.Where(a => a.FormId == form.Ids).OrderBy(a => a.Sr))
+                                                                        {
+                                                                            var nodeId = $"{head.Id}|{form.Ids}|{action.ActionCode}";
+                                                                            var isChecked = Model.RoleAssignList != null && Model.RoleAssignList.Any(x => x.HeadId == head.Id && x.FormId == form.Ids && x.ActionId == action.ActionCode);
+
+                                                                            <li id="@nodeId"
+                                                                                data-jstree='{"icon":"fas fa-check-circle text-success", "selected": @(isChecked ? "true" : "false")}'>
+                                                                                @action.ActionName
+                                                                            </li>
+                                                                        }
+                                                                    </ul>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input to store selected values -->
+                            <div id="selected-values-container"></div>
+
+                            <div class="pt-4 border-top">
+                                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                                    <p class="text-muted small mb-3 mb-md-0"><i class="fas fa-info-circle mr-1"></i> Permissions will be applied immediately upon update.</p>
+                                    <div>
+                                        <a asp-action="Index" class="btn btn-light px-4 mr-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary save-btn">
+                                            <i class="fas fa-save mr-2"></i> Save Permissions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+                </div>
+                </div>
+                </div>
+
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2
+            $('.select2').select2({
+                placeholder: "Select a Role...",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Initialize jstree
+            $('#jstree-container').jstree({
+                "plugins": ["checkbox", "search", "types"],
+                "checkbox": {
+                    "keep_selected_style": false,
+                    "tie_selection": true // Set to true to use jstree's built-in selection
+                },
+                "core": {
+                    "themes": {
+                        "name": "default",
+                        "dots": true,
+                        "icons": true
+                    }
+                }
+            });
+
+            // Handle Checkbox Events
+            function updateSelectedValues() {
+                var selectedNodes = $('#jstree-container').jstree("get_checked", true);
+                var container = $('#selected-values-container');
+                container.empty();
+
+                selectedNodes.forEach(function (node) {
+                    // Only store values for leaves (the actions)
+                    if (node.id.includes('|')) {
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: 'selectedValues',
+                            value: node.id
+                        }).appendTo(container);
+                    }
+                });
+            }
+
+            // Before form submit, make sure we have the values
+            $('#roleAssignForm').on('submit', function() {
+                updateSelectedValues();
+                if ($('#RoleId').val() === "" || $('#RoleId').val() === null) {
+                    Swal.fire('Required', 'Please select a role first', 'warning');
+                    return false;
+                }
+                var selectedCount = $('#selected-values-container input').length;
+                if (selectedCount === 0) {
+                    Swal.fire('Required', 'Please select at least one permission', 'warning');
+                    return false;
+                }
+                return true;
+            });
+
+            // Initial call if editing
+            @if (ViewBag.IsUpdate == true)
+            {
+                        <text>
+                        $('#jstree-container').on('ready.jstree', function() {
+                            updateSelectedValues();
+                        });
+                        </text>
+            }
+        });
+    </script>
+}

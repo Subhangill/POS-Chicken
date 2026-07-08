@@ -1,0 +1,815 @@
+@model PurchaseVm
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fa fa-drumstick-bite mr-2"></i>
+                            @(Model.WasteReceived.Id > 0 ? "Update Received Waste" : "New Waste Receiving")
+                        </h3>
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fa fa-list"></i> View List
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" method="post" asp-action="Save" asp-controller="Purchase" id="purchaseForm">
+                            <input type="hidden" asp-for="WasteReceived.Id" />
+                            <!-- ================= MASTER DETAILS ================= -->
+                            <div class="row mb-1">
+                                <div class="col-md-2">
+                                    <label><i class="fa fa-calendar"></i> Date</label>
+                                    <input type="date" name="WasteReceived.Date" asp-for="WasteReceived.Date"
+                                           value="@(Model.WasteReceived.Date.ToString("yyyy-MM-dd"))" class="form-control" required />
+                                </div>
+                                <div class="col-md-2">
+                                    <label><i class="fa fa-file"></i> Invoice Source</label>
+                                    <select onchange="hideshowdiv(this)" asp-for="WasteReceived.Source" class="form-control" required>
+                                        <option value="0">Route</option>
+                                        <option value="1">Sended By Supplier</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2" id="div_employee">
+                                        <label><i class="fa fa-user"></i> Employee</label>
+                                        <select asp-for="WasteReceived.Empid" id="sel_employee" class="form-control search-select" required>
+                                            <option value="0">Select Employee</option>
+                                            @foreach (var itm in Model.Employeelist)
+                                            {
+                                                <option value="@itm.Id">@itm.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                <div class="col-md-2" id="div_area">
+                                        <label><i class=""></i> Area</label>
+                                        <select asp-for="WasteReceived.Area" id="sel_area" class="form-control search-select" required>
+                                            <option value="0">Select Area</option>
+                                            @foreach (var itm in Model.Arealist)
+                                            {
+                                                <option value="@itm.Id">@itm.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                <div class="col-md-2" id="div_vehicle">
+                                    <label><i class="fa fa-truck"></i> Vehicle</label>
+                                    <select asp-for="WasteReceived.Vehicle" id="sel_vehicle" class="form-control search-select" required>
+                                        <option value="0">Select Vehicle</option>
+                                        @foreach (var itm in Model.Vehiclelist)
+                                        {
+                                            <option value="@itm.Id">@itm.VehicleNo</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-2" id="div_supplier">
+                                    <label><i class="fa fa-user"></i> Supplier</label>
+                                    <select asp-for="WasteReceived.Suppid" id="sel_supplier" class="form-control search-select" required>
+                                        <option value="0">Select Supplier</option>
+                                        @foreach (var itm in Model.Supplierlist)
+                                        {
+                                            <option value="@itm.Id">@itm.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                               
+                            
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-image"></i> Document Image</label>
+                                    <input type="file" asp-for="WasteReceived.ImageFile" class="form-control" id="ImageFile" accept="image/*" />
+                                    <div class="mt-2">
+                                        <img id="imagePreview" src="@(string.IsNullOrEmpty(Model?.WasteReceived?.ImagePath) ? "#" : Model.WasteReceived.ImagePath)" 
+                                             alt="Image Preview" 
+                                             style="max-width: 150px; max-height: 150px; display: @(string.IsNullOrEmpty(Model?.WasteReceived?.ImagePath) ? "none" : "block"); border: 1px solid #ddd; padding: 5px; border-radius: 5px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ================= ITEMS SECTION ================= -->
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs nav-justified nav-bordered nav-bordered-success mb-3 purchase-tabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <a href="#receivedTab" data-bs-toggle="tab" class="nav-link active">Items Received</a>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <a href="#wastageTab" data-bs-toggle="tab" class="nav-link">Wasted Items</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content rounded p-1 border bg-light">
+                                        <!-- ================= RECEIVED TAB ================= -->
+                                        <div class="tab-pane fade show active" id="receivedTab">
+                                            <div class="row g-1 align-items-end mb-1">
+                                                <div class="col-md-4">
+                                                    <label class="fw-bold">Supplier (Consolidator)</label>
+                                                    <select id="supplier_received" class="form-control search-select">
+                                                        <option value="">Select Supplier</option>
+                                                        @foreach (var itm in Model.Supplierlist)
+                                                        {
+                                                            <option value="@itm.Id">@(itm.Name ?? "N/A")</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="fw-bold">Item</label>
+                                                    <select id="product_received" class="search-select form-control">
+                                                        <option value="">Select Item</option>
+                                                        @foreach (var itm in Model.Productlist)
+                                                        {
+                                                            <option data-price="@itm.Price" value="@itm.Id">@(itm.Name ?? "N/A")</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="fw-bold">Weight (Kg)</label>
+                                                    <input type="number" step="0.001" id="qty_received" class="text-center fw-bold form-control" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" onclick="showModel()" class="btn btn-success btn-block">
+                                                        <i class="fa fa-plus"></i> Add
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" id="table_received">
+                                                    <thead class="thead-dark">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Supplier</th>
+                                                            <th>Item</th>
+                                                            <th class="text-center">Weight (Kg)</th>
+                                                            <th>Sub Suppliers</th>
+                                                            <th class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (Model.WasteReceived.Id > 0)
+                                                        {
+                                                            int rowIndex = 0;
+                                                            foreach (var item in Model.WasteReceiveDetaillist)
+                                                            {
+                                                                string subHtml = "";
+                                                                if (item.SubDetails != null && item.SubDetails.Any())
+                                                                {
+                                                                    foreach (var sub in item.SubDetails)
+                                                                    {
+                                                                        string subName = Model.Supplierlist.FirstOrDefault(s => s.Id == sub.SubSuppid)?.Name ?? $"ID:{sub.SubSuppid}";
+                                                                        subHtml += $"<small>{subName}: {sub.Weight}kg</small><br>";
+                                                                    }
+                                                                }
+
+                                                                <tr>
+                                                                    <td class="d-none">
+                                                                        <input name="WasteReceiveDetaillist[@rowIndex].Pid" value="@item.Pid" />
+                                                                        <input name="WasteReceiveDetaillist[@rowIndex].Suppid" value="@item.Suppid" />
+                                                                        <input name="WasteReceiveDetaillist[@rowIndex].Weight" value="@item.Weight" />
+                                                                        @if (item.SubDetails != null)
+                                                                        {
+                                                                            int subIdx = 0;
+                                                                            foreach (var sub in item.SubDetails)
+                                                                            {
+                                                                                <input name="WasteReceiveDetaillist[@rowIndex].SubDetails[@subIdx].Pid" value="@sub.Pid" />
+                                                                                <input name="WasteReceiveDetaillist[@rowIndex].SubDetails[@subIdx].SubSuppid" value="@sub.SubSuppid" />
+                                                                                <input name="WasteReceiveDetaillist[@rowIndex].SubDetails[@subIdx].Weight" value="@sub.Weight" />
+                                                                                subIdx++;
+                                                                            }
+                                                                        }
+                                                                    </td>
+                                                                    <td class="text-center fw-bold sr">@(rowIndex + 1)</td>
+                                                                    <td class="text-start fw-bold">@(Model.Supplierlist.FirstOrDefault(s => s.Id == item.Suppid)?.Name ?? "N/A")</td>
+                                                                    <td class="text-start fw-bold">@(Model.Productlist.FirstOrDefault(p => p.Id == item.Pid)?.Name ?? "N/A")</td>
+                                                                    <td class="text-end fw-bold">@item.Weight</td>
+                                                                    <td class="sub-summary">@Html.Raw(subHtml)</td>
+                                                                    <td class="text-center">
+                                                                        <i class="ti ti-pencil row-icon-btn icon-edit btn-edit" title="Edit" style="cursor:pointer;"></i>
+                                                                        <i class="ti ti-trash row-icon-btn icon-delete btn-delete ms-2" title="Remove" style="cursor:pointer;"></i>
+                                                                    </td>
+                                                                </tr>
+                                                                rowIndex++;
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= WASTAGE TAB ================= -->
+                                        <div class="tab-pane fade" id="wastageTab">
+                                            <div class="row g-1 align-items-end mb-1">
+                                                <div class="col-md-5">
+                                                    <label class="fw-bold">Item</label>
+                                                    <select id="product_wastage" class="search-select form-control">
+                                                        <option value="">Select Item</option>
+                                                        @foreach (var itm in Model.Productlist)
+                                                        {
+                                                            <option data-price="@itm.Price" value="@itm.Id">@(itm.Name ?? "N/A")</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="fw-bold">Weight (Kg)</label>
+                                                    <input type="number" step="0.001" id="qty_wastage" class="text-center fw-bold form-control" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" onclick="addrow1()" class="btn btn-warning btn-block">
+                                                        <i class="fa fa-plus"></i> Add
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" id="table_wastage">
+                                                    <thead class="thead-dark">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Item</th>
+                                                            <th class="text-center">Weight (Kg)</th>
+                                                            <th class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (Model.WasteReceived.Id > 0)
+                                                        {
+                                                            int wastageIndex = 0;
+                                                            foreach (var item in Model.RawWastageDetaillist)
+                                                            {
+                                                                <tr>
+                                                                    <td class="d-none">
+                                                                        <input name="RawWastageDetaillist[@wastageIndex].Pid" value="@item.Pid" />
+                                                                        <input name="RawWastageDetaillist[@wastageIndex].Weight" value="@item.Weight" />
+                                                                    </td>
+                                                                    <td class="text-center fw-bold sr">@(wastageIndex + 1)</td>
+                                                                    <td class="text-start fw-bold">@(Model.Productlist.FirstOrDefault(p => p.Id == item.Pid)?.Name ?? "N/A")</td>
+                                                                    <td class="text-end fw-bold">@item.Weight</td>
+                                                                    <td class="text-center">
+                                                                        <i class="ti ti-trash row-icon-btn icon-delete btn-delete" title="Remove" style="cursor:pointer;"></i>
+                                                                    </td>
+                                                                </tr>
+                                                                wastageIndex++;
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ================= WEIGHT SUMMARY ================= -->
+                                    <div class="row mt-4">
+                                        <div class="col-md-4">
+                                            <strong>Total Received Weight (Kg)</strong>
+                                            <input asp-for="WasteReceived.GrossWeight" type="number" id="totalReceivedWeight" readonly class="form-control text-center fw-bold" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Total Wastage Weight (Kg)</strong>
+                                            <input asp-for="WasteReceived.WasteWeight" type="number" id="totalWastageWeight" readonly class="form-control text-center fw-bold" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Net Weight (Kg)</strong>
+                                            <input asp-for="WasteReceived.NetWeight" type="number" id="netWeight" readonly class="form-control text-center fw-bold" style="font-size:1.1rem;" />
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 row">
+                                        <div class="col-md-7">
+                                            <label><i class="fa fa-sticky-note"></i> Note</label>
+                                            <input asp-for="WasteReceived.Note" type="text" class="form-control" placeholder="Optional" />
+                                        </div>
+                                        <div class=" col-md-3 text-end">
+                                            <button type="submit" onclick="return saveCheck()" class="btn btn-primary btn-lg">
+                                                <i class="fa fa-save"></i> Save
+                                            </button>
+                                            <a href="@Url.Action("Index")" class="btn btn-danger btn-lg ms-2">
+                                                <i class="fa fa-times"></i> Cancel
+                                            </a>
+                                        </div>
+                                    </div>
+                                 
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= SUB DETAIL MODAL ================= -->
+<div class="modal fade" id="subDetailModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sub Suppliers for Row <span id="modalRowNumber"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-5">
+                        <label>Sub Supplier</label>
+                        <select id="sub_supplier" class="form-control search-select"></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Weight (Kg)</label>
+                        <input type="number" step="0.001" id="sub_weight" class="form-control" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" onclick="subaddrow()" class="btn btn-success">Add</button>
+                    </div>
+                </div>
+
+                <table class="table table-bordered" id="sub_table">
+                    <thead>
+                        <tr>
+                            <th>Sub Supplier</th>
+                            <th class="text-end">Weight (Kg)</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="mt-3 text-end">
+                    <strong>Total: <span id="sub_total_weight">0.00</span> / <span id="main_weight_display"></span></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnSubmitModal" onclick="saveMainRowWithSubDetails()" class="btn btn-primary">Submit & Add Row</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <style>
+        /* ===== Tab Styling ===== */
+        .purchase-tabs .nav-link {
+            color: #555;
+            font-weight: 500;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            padding: 8px 20px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .purchase-tabs .nav-link:hover {
+            background-color: #f0f4ff;
+            color: #1a73e8;
+            border-color: #dee2e6 #dee2e6 transparent;
+        }
+        .purchase-tabs .nav-link.active {
+            background-color: #fff;
+            color: #1a73e8;
+            border-color: #dee2e6 #dee2e6 #fff;
+            font-weight: 600;
+            border-bottom: 2px solid #1a73e8;
+        }
+
+        /* ===== Row Action Icons ===== */
+        .row-icon-btn {
+            font-size: 1rem;
+            padding: 2px;
+            border-radius: 3px;
+            transition: color 0.15s, transform 0.15s;
+        }
+        .icon-edit {
+            color: #e08c00;
+        }
+        .icon-edit:hover {
+            color: #b36d00;
+            transform: scale(1.2);
+        }
+        .icon-delete {
+            color: #dc3545;
+        }
+        .icon-delete:hover {
+            color: #a71d2a;
+            transform: scale(1.2);
+        }
+    </style>
+    <script>
+        function hideshowdiv(opt) {
+            var val = parseInt(opt.value);
+            if (val === 1) {
+                // Show supplier, hide employee/area/vehicle and reset their values
+                $("#div_supplier").show();
+                $("#div_employee").hide();
+                $("#div_area").hide();
+                $("#div_vehicle").hide();
+                $("#sel_employee").val("0");
+                $("#sel_area").val("0");
+                $("#sel_vehicle").val("0");
+                // Remove required from hidden fields
+                $("#sel_employee, #sel_area, #sel_vehicle").removeAttr("required");
+                $("#sel_supplier").attr("required", true);
+            } else {
+                // Show employee/area/vehicle, hide supplier and reset its value
+                $("#div_supplier").hide();
+                $("#div_employee").show();
+                $("#div_area").show();
+                $("#div_vehicle").show();
+                $("#sel_supplier").val("0");
+                // Remove required from supplier, add back to others
+                $("#sel_supplier").removeAttr("required");
+                $("#sel_employee, #sel_area, #sel_vehicle").attr("required", true);
+            }
+        }
+
+        // Run on page load based on current selected value
+        $(document).ready(function () {
+            var sourceVal = parseInt($("#WasteReceived_Source").val()) || 0;
+            hideshowdiv({ value: sourceVal });
+        });
+        let pendingMainRow = null;
+        let editingRow = null; // holds the <tr> being edited, null when adding new
+
+        // Prevent Enter key from submitting form
+        $(document).on('keypress', 'form', function(e) {
+            if (e.which === 13 && !$(e.target).is('textarea')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Delete row handlers
+        $(document).on("click", ".btn-delete", function() {
+            if (confirm("Remove this row?")) {
+                $(this).closest("tr").remove();
+                reassignSr(0);
+                reassignSr(1);
+                calculation();
+            }
+        });
+
+        $(document).on("click", ".btn-delete-sub", function() {
+            if (confirm("Remove this sub supplier?")) {
+                $(this).closest("tr").remove();
+                getsubWeighttotal();
+            }
+        });
+
+        // Edit row handler — opens modal pre-populated with existing row data
+        $(document).on("click", ".btn-edit", function() {
+            var $tr = $(this).closest("tr");
+            var $hidden = $tr.find("td.d-none");
+
+            // Read main row values from hidden inputs
+            var pid      = $hidden.find("input[name*='.Pid']").not("[name*='SubDetails']").val();
+            var suppid   = $hidden.find("input[name*='.Suppid']").val();
+            var weight   = parseFloat($hidden.find("input[name*='.Weight']").not("[name*='SubDetails']").val()) || 0;
+            var suppname = $tr.find("td:nth-child(3)").text().trim();  // visible Supplier cell
+            var pname    = $tr.find("td:nth-child(4)").text().trim();  // visible Item cell
+
+            pendingMainRow = {
+                suppid  : parseInt(suppid) || 0,
+                suppname: suppname,
+                pid     : parseInt(pid) || 0,
+                pname   : pname,
+                weight  : weight
+            };
+            editingRow = $tr;
+
+            $.ajax({
+                type: "GET",
+                url: "/Purchase/GetSupplierList",
+                success: function(data) {
+                    $("#sub_supplier").empty()
+                        .append(`<option value="">-Select Sub Supplier-</option>`);
+                    $.each(data, function(i, item) {
+                        $("#sub_supplier").append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+
+                    // Pre-populate sub table from existing hidden sub-inputs
+                    $("#sub_table tbody").empty();
+                    $hidden.find("input[name*='SubDetails']").filter("[name*='.SubSuppid']").each(function() {
+                        var baseName = $(this).attr("name").replace(".SubSuppid", "");
+                        var subSuppid   = $(this).val();
+                        var subWeight   = $hidden.find(`input[name='${baseName}.Weight']`).val();
+                        var subSuppname = data.find(s => s.id == subSuppid)?.name ?? `ID:${subSuppid}`;
+
+                        $("#sub_table tbody").append(`
+                            <tr data-subsuppid="${subSuppid}">
+                                <td class="sub-supp-name">${subSuppname}</td>
+                                <td class="text-end fw-bold sub-weight">${subWeight}</td>
+                                <td class="text-center">
+                                    <i class="ti ti-trash row-icon-btn icon-delete btn-delete-sub" title="Remove" style="cursor:pointer;"></i>
+                                </td>
+                            </tr>
+                        `);
+                    });
+
+                    getsubWeighttotal();
+                    $("#main_weight_display").text(weight.toFixed(2));
+                    $("#modalRowNumber").text($tr.find("td.sr").text());
+
+                    // Update modal button label
+                    $("#btnSubmitModal").text("Update Row");
+
+                    initSubSupplierSelect();
+                    $('#subDetailModal').modal('show');
+                }
+            });
+        });
+
+        // Initialize Select2 for Sub Supplier dropdown
+        function initSubSupplierSelect() {
+            if ($.fn.select2) {
+                var $el = $('#sub_supplier');
+                // Only destroy if Select2 is already initialized on this element
+                if ($el.hasClass('select2-hidden-accessible')) {
+                    $el.select2('destroy');
+                }
+                $el.select2({
+                    dropdownParent: $('#subDetailModal'),
+                    placeholder: "Select Sub Supplier",
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+        }
+
+        function showModel() {
+            var suppid = parseInt($("#supplier_received").val()) || 0;
+            var pid = parseInt($("#product_received").val()) || 0;
+            var weight = parseFloat($("#qty_received").val()) || 0;
+            var suppname = $("#supplier_received option:selected").text();
+            var pname = $("#product_received option:selected").text();
+
+            if (suppid === 0 || pid === 0 || weight === 0) {
+                alert("Please select Supplier, Item and enter Weight");
+                return;
+            }
+
+            pendingMainRow = { suppid, suppname, pid, pname, weight };
+            editingRow = null; // new row mode
+
+            $.ajax({
+                type: "GET",
+                url: "/Purchase/GetSupplierList",
+                success: function (data) {
+                    $("#sub_supplier").empty()
+                        .append(`<option value="">-Select Sub Supplier-</option>`);
+
+                    $.each(data, function(index, item) {
+                        $("#sub_supplier").append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+
+                    // Reset sub table
+                    $("#sub_table tbody").empty();
+                    $("#sub_total_weight").text("0.00");
+                    $("#main_weight_display").text(weight.toFixed(2));
+                    $("#modalRowNumber").text($("#table_received tbody tr").length + 1);
+
+                    // Reset modal button label
+                    $("#btnSubmitModal").text("Submit & Add Row");
+
+                    // Initialize searchable dropdown inside modal
+                    initSubSupplierSelect();
+
+                    $('#subDetailModal').modal('show');
+                }
+            });
+        }
+
+        function subaddrow() {
+            var suppid = parseInt($("#sub_supplier").val()) || 0;
+            var weight = parseFloat($("#sub_weight").val()) || 0;
+            var suppname = $("#sub_supplier option:selected").text();
+
+            if (suppid === 0) {
+                alert("Please select sub supplier");
+                return;
+            }
+            if (weight === 0) {
+                alert("Please enter weight");
+                return;
+            }
+
+            $("#sub_table tbody").append(`
+                <tr data-subsuppid="${suppid}">
+                    <td class="sub-supp-name">${suppname}</td>
+                    <td class="text-end fw-bold sub-weight">${weight}</td>
+                    <td class="text-center">
+                        <i class="ti ti-trash row-icon-btn icon-delete btn-delete-sub" title="Remove" style="cursor:pointer;"></i>
+                    </td>
+                </tr>
+            `);
+
+            $("#sub_supplier").val("").trigger("change");
+            $("#sub_weight").val("");
+            getsubWeighttotal();
+        }
+
+        function getsubWeighttotal() {
+            var total = 0;
+            $("#sub_table tbody tr").each(function() {
+                total += parseFloat($(this).find(".sub-weight").text()) || 0;
+            });
+            $("#sub_total_weight").text(total.toFixed(2));
+        }
+
+        function saveMainRowWithSubDetails() {
+            if (!pendingMainRow) return;
+
+            var subTotal = parseFloat($("#sub_total_weight").text()) || 0;
+            if (Math.abs(subTotal - pendingMainRow.weight) > 0.01) {
+                alert("Sub suppliers total weight must exactly match main weight!");
+                return;
+            }
+
+            // For edit mode use the existing row index, for new use next index
+            var sr = editingRow
+                ? parseInt(editingRow.find("td.sr").text())
+                : $("#table_received tbody tr").length + 1;
+
+            var subHtml = "";
+            var hiddenSubInputs = "";
+
+            $("#sub_table tbody tr").each(function(index) {
+                var subName   = $(this).find(".sub-supp-name").text();
+                var subWeight = $(this).find(".sub-weight").text();
+                var subSuppid = $(this).data("subsuppid");
+
+                subHtml += `<small>${subName}: ${subWeight}kg</small><br>`;
+                hiddenSubInputs += `
+                    <input name="WasteReceiveDetaillist[${sr-1}].SubDetails[${index}].Pid" value="${pendingMainRow.pid}" />
+                    <input name="WasteReceiveDetaillist[${sr-1}].SubDetails[${index}].SubSuppid" value="${subSuppid}" />
+                    <input name="WasteReceiveDetaillist[${sr-1}].SubDetails[${index}].Weight" value="${subWeight}" />
+                `;
+            });
+
+            var rowHtml = `
+                <tr>
+                    <td class="d-none">
+                        <input name="WasteReceiveDetaillist[${sr-1}].Pid" value="${pendingMainRow.pid}" />
+                        <input name="WasteReceiveDetaillist[${sr-1}].Suppid" value="${pendingMainRow.suppid}" />
+                        <input name="WasteReceiveDetaillist[${sr-1}].Weight" value="${pendingMainRow.weight}" />
+                        ${hiddenSubInputs}
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+                    <td class="text-start fw-bold">${pendingMainRow.suppname}</td>
+                    <td class="text-start fw-bold">${pendingMainRow.pname}</td>
+                    <td class="text-end fw-bold">${pendingMainRow.weight}</td>
+                    <td class="sub-summary">${subHtml}</td>
+                    <td class="text-center">
+                        <i class="ti ti-pencil row-icon-btn icon-edit btn-edit me-2" title="Edit" style="cursor:pointer;"></i>
+                        <i class="ti ti-trash row-icon-btn icon-delete btn-delete" title="Remove" style="cursor:pointer;"></i>
+                    </td>
+                </tr>
+            `;
+
+            if (editingRow) {
+                // Replace the existing row in-place
+                editingRow.replaceWith(rowHtml);
+            } else {
+                // Append new row
+                $("#table_received tbody").append(rowHtml);
+                // Clear main inputs only when adding new
+                $("#supplier_received, #product_received, #qty_received").val("").trigger("change");
+            }
+
+            $('#subDetailModal').modal('hide');
+            pendingMainRow = null;
+            editingRow = null;
+
+            reassignSr(0);
+            calculation();
+        }
+
+
+        function addrow1() {
+            var pid = parseInt($("#product_wastage").val()) || 0;
+            var weight = parseFloat($("#qty_wastage").val()) || 0;
+            var pname = $("#product_wastage option:selected").text();
+
+            if (pid === 0) { alert("Please select item!!"); return; }
+            if (weight === 0) { alert("Please enter weight!!"); return; }
+
+            var sr = $("#table_wastage tbody tr").length + 1;
+
+            $("#table_wastage tbody").append(`
+                <tr>
+                    <td class="d-none">
+                        <input name="RawWastageDetaillist[${sr-1}].Pid" value="${pid}" />
+                        <input name="RawWastageDetaillist[${sr-1}].Weight" value="${weight}" />
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+                    <td class="text-start fw-bold">${pname}</td>
+                    <td class="text-end fw-bold">${weight}</td>
+                    <td class="text-center">
+                        <i class="ti ti-trash row-icon-btn icon-delete btn-delete" title="Remove" style="cursor:pointer;"></i>
+                    </td>
+                </tr>
+            `);
+
+            $("#product_wastage").val("").trigger("change");
+            $("#qty_wastage").val("");
+
+            reassignSr(1);
+            calculation();
+        }
+
+        function reassignSr(type) {
+            if (type === 0) {
+                $("#table_received tbody tr").each(function(index) {
+                    var row = $(this);
+                    row.find("td.sr").text(index + 1);
+                    row.find("input").each(function() {
+                        var oldName = $(this).attr("name");
+                        if (!oldName) return;
+                        var newName = oldName.replace(/WasteReceiveDetaillist\[\d+\]/, `WasteReceiveDetaillist[${index}]`);
+                        $(this).attr("name", newName);
+                    });
+                });
+            } else {
+                $("#table_wastage tbody tr").each(function(index) {
+                    var row = $(this);
+                    row.find("td.sr").text(index + 1);
+                    row.find("input").each(function() {
+                        var oldName = $(this).attr("name");
+                        if (!oldName) return;
+                        var newName = oldName.replace(/RawWastageDetaillist\[\d+\]/, `RawWastageDetaillist[${index}]`);
+                        $(this).attr("name", newName);
+                    });
+                });
+            }
+        }
+
+        function calculation() {
+            var totalReceivedWt = 0, totalWastageWt = 0;
+
+            $("#table_received tbody tr").each(function() {
+                totalReceivedWt += parseFloat($(this).find("input[name*='Weight']").val()) || 0;
+            });
+
+            $("#table_wastage tbody tr").each(function() {
+                totalWastageWt += parseFloat($(this).find("input[name*='Weight']").val()) || 0;
+            });
+
+            var netWt = totalReceivedWt - totalWastageWt;
+
+            $("#totalReceivedWeight").val(totalReceivedWt.toFixed(2));
+            $("#totalWastageWeight").val(totalWastageWt.toFixed(2));
+            $("#netWeight").val(netWt.toFixed(2));
+        }
+
+        function saveCheck() {
+            if ($("#table_received tbody tr").length === 0) {
+                alert("Please add at least one received item!");
+                return false;
+            }
+            return true;
+        }
+
+        // Page Load
+        $(document).ready(function () {
+            calculation();
+            reassignSr(0);
+            reassignSr(1);
+
+            // Clean up Select2 when modal is closed
+            $('#subDetailModal').on('hidden.bs.modal', function () {
+                if ($.fn.select2) {
+                    var $el = $('#sub_supplier');
+                    if ($el.hasClass('select2-hidden-accessible')) {
+                        $el.select2('destroy');
+                    }
+                }
+                // Reset edit state if modal closed without submitting
+                editingRow = null;
+                pendingMainRow = null;
+                $("#btnSubmitModal").text("Submit & Add Row");
+            });
+
+            document.getElementById('ImageFile').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('imagePreview');
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const originalImage = '@(Model?.WasteReceived?.ImagePath ?? "")';
+                    if (originalImage) {
+                        preview.src = originalImage;
+                        preview.style.display = 'block';
+                    } else {
+                        preview.src = '#';
+                        preview.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+
+
+

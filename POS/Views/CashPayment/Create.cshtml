@@ -1,0 +1,420 @@
+@model VoucherVm
+@{
+    int sr = 0;
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+
+                    <!-- HEADER -->
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fa fa-cash-register mr-2"></i>
+                            @(Model.Voucher.Id > 0 ? "Update Cash Payment" : "Add Cash Payment")
+                        </h3>
+
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fa fa-list"></i> View List
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" method="post" asp-action="Save" asp-controller="CashPayment">
+                            <input type="hidden" asp-for="Voucher.Id" class="form-control" />
+                            <input type="hidden" asp-for="Voucher.TranId" class="form-control" />
+                            <input type="hidden" asp-for="Voucher.InvId" class="form-control" />
+
+
+                            <!-- ================= TOP INFO ================= -->
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label><i class=""></i> VoucherNo</label>
+                                    <input type="number" asp-for="Voucher.InvId" class="text-center form-control" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label><i class="fa fa-calendar"></i> Date</label>
+                                    <input type="date" asp-for="Voucher.Date" class="form-control" />
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label><i class="fa fa-money-bill-wave"></i> Cash Account</label>
+                                    <input asp-for="Voucher.AccountId" class="form-control" readonly value="1000001" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label><i class="fa fa-money-bill-wave"></i> Note</label>
+                                    <input asp-for="Voucher.Detail" class="form-control"   />
+                                </div>
+
+
+
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-image"></i> Document Image</label>
+                                    <input type="file" asp-for="Voucher.ImageFile" class="form-control" id="ImageFile" accept="image/*" />
+                                    <div class="mt-2">
+                                        <img id="imagePreview" src="@(string.IsNullOrEmpty(Model?.Voucher?.ImagePath) ? "#" : Model.Voucher.ImagePath)" 
+                                             alt="Image Preview" 
+                                             style="max-width: 150px; max-height: 150px; display: @(string.IsNullOrEmpty(Model?.Voucher?.ImagePath) ? "none" : "block"); border: 1px solid #ddd; padding: 5px; border-radius: 5px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- ================= ITEM SECTION (COMPACT FIXED) ================= -->
+                            <div class="card shadow-sm mt-2">
+
+                                <div class="card-header bg-light py-2">
+                                    <strong>
+                                        <i class="fa fa-boxes"></i> Add Details
+                                    </strong>
+                                </div>
+
+                                <div class="card-body py-2 px-3">
+
+                                    <div class="row g-2 align-items-end">
+
+                                        <div class="col-md-4">
+                                            <label class="fw-bold mb-1">Account</label>
+                                            <select id="product" class="search-select form-control form-control-sm">
+                                                <option value="">Select Account</option>
+                                                @foreach (var itm in Model.Accountlist)
+                                                {
+                                                    <option value="@itm.AccountNo">@(itm.Name ?? "N/A")</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Dr</label>
+                                            <input type="number" id="dr"  class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="fw-bold mb-1">Nar</label>
+                                            <input type="text"  id="nar" placeholder="Enter details.." class="fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <button onclick="addrow()" type="button" class="btn btn-dark btn-block">
+                                                <i class="fa fa-plus"></i> Add
+                                            </button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- ================= ITEM TABLE (CLOSER) ================= -->
+                            <div class="mt-2">
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Account</th>
+                                                <th class="text-center">Dr</th>
+                                                <th class="text-center">Cr</th>
+                                                <th class="text-center">Naration</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="itemdtable">
+                                            @if (Model.VoucherDetaillist != null && Model.VoucherDetaillist.Count > 0)
+                                            {
+                                                foreach (var itm in Model.VoucherDetaillist)
+                                                {
+                                                    string accname = Model.Accountlist.Where(e => e.AccountNo == itm.AccountId).Select(e => e.Name).FirstOrDefault() ?? "";
+                                                    <tr>
+                                                        <td class="d-none">
+                                                            <input name="VoucherDetaillist[@sr].AccountId" value="@itm.AccountId" />
+                                                            <input name="VoucherDetaillist[@sr].Dr" value="@itm.Dr" />
+                                                            <input name="VoucherDetaillist[@sr].Cr" value="@itm.Cr" />
+                                                            <input name="VoucherDetaillist[@sr].Detail" value="@itm.Detail" />
+                                                        </td>
+                                                        <td class="text-center fw-bold sr"> @(sr = sr + 1) </td>
+                                                        <td class="text-start fw-bold"> @(itm.AccountId == 1000001 ? "Cash" : accname) </td>
+                                                        <td class="text-end fw-bold"> @itm.Dr </td>
+                                                        <td class="text-end fw-bold"> @itm.Cr </td>
+                                                        <td class="fw-bold"> @(itm.Detail ?? "N/A") </td>
+                                                        <td class="text-center">
+                                                            @if (itm.AccountId != 1000001)
+                                                            {
+                                                                <button type="button" class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                            <!-- ================= SUMMARY ================= -->
+                            <div class="row mt-3">
+
+                                <div class="col-md-6">
+                                    <button type="submit" onclick="return saveCheck()" class="btn btn-primary btn-lg">
+                                        <i class="fa fa-save"></i> @(Model.Voucher.Id > 0 ? "Update Voucher" : "Save Voucher")
+                                    </button>
+
+                                    <a href="@Url.Action("Index")" class="btn btn-danger btn-lg ms-2">
+                                        <i class="fa fa-times"></i> Cancel
+                                    </a>
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <div class="card">
+                                        <div class="card-body py-2">
+
+                                            <div class="row">
+
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Total Dr</label>
+                                                    <input asp-for="Voucher.Dr" id="totaldr" class="text-center form-control" readonly />
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Total Cr</label>
+                                                    <input asp-for="Voucher.Cr" id="totalcr" class="text-center form-control" style="" readonly />
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+     
+       
+        $(document).on('keypress', 'form', function(e) {
+            if (e.keyCode === 13 || e.which === 13) {
+                var target = $(e.target);
+                // Allow Enter only on textarea or submit button
+                if (target.is('textarea') || target.is(':submit') || target.hasClass('btn')) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+
+
+        $(document).on('keydown', 'input, select', function(e) {
+            if (e.key === "Enter" || e.keyCode === 13) {
+                e.preventDefault();
+                // Optional: Move focus to next input field
+                var inputs = $(this).closest('form').find('input, select, textarea');
+                var nextInput = inputs[inputs.index(this) + 1];
+                if (nextInput) {
+                    $(nextInput).focus();
+                }
+                return false;
+            }
+        });
+
+
+        function applyDiscount(){
+            calculation();
+        }
+
+        function saveCheck(){
+            var sr = $("#itemdtable tr").length;
+            if(sr === 0){
+                alert("Please add payment to Voucher first!!");
+                return false;
+            }
+            return true;
+        }
+
+        $(document).on("click", ".btn-delete", function () {
+
+            if (confirm("Do you want to remove this row???")) {
+
+                var currentRow = $(this).closest("tr");
+                var nextRow = currentRow.next("tr");
+
+                currentRow.remove(); // remove clicked row
+                nextRow.remove();    // remove next row
+
+                reassignSr();
+                calculation();
+            }
+
+        });
+
+        function calculation(){
+            var dr = 0;
+            var cr = 0;
+            $("#itemdtable tr").each(function(index, item){
+                var row = $(this);
+                dr += parseFloat(row.find("input[name*='Dr']").val()) || 0;
+                cr += parseFloat(row.find("input[name*='Cr']").val()) || 0;
+            });
+            $("#totaldr").val(dr.toFixed(2));
+            $("#totalcr").val(cr.toFixed(2));
+        }
+
+        function addrow(){
+            var productid = parseInt($("#product").val()) || 0;
+            var itemtext = $("#product option:selected").text();
+            var price = parseFloat($("#dr").val()) || 0;
+            var nar = $("#nar").val() || "";
+
+            if(productid <= 0){
+                alert("Please select an account!!");
+                return;
+            }
+            if(price <= 0){
+                alert("Please enter valid amount!!");
+                $("#dr").focus();
+                return;
+            }
+            
+            var sr = $("#itemdtable tr").length + 1;
+
+            $("#itemdtable").append(`
+                <tr>
+                    <td class="d-none">
+                        <input name="VoucherDetaillist[${sr-1}].Accountid" value="${productid}" />
+                        <input name="VoucherDetaillist[${sr-1}].Dr" value="${price}" />
+                        <input name="VoucherDetaillist[${sr-1}].Cr" value="0" />
+                        <input name="VoucherDetaillist[${sr-1}].Detail" value="${nar}" />
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+                    <td class="text-start fw-bold">${itemtext}</td>
+                    <td class="text-end fw-bold">${price}</td>
+                    <td class="text-end fw-bold">0</td>
+                    <td class=" fw-bold">${nar}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+                 $("#itemdtable").append(`
+                <tr>
+                    <td class="d-none">
+                        <input name="VoucherDetaillist[${sr-1}].Accountid" value="1000001" />
+                        <input name="VoucherDetaillist[${sr-1}].Dr" value="0" />
+                        <input name="VoucherDetaillist[${sr-1}].Cr" value="${price}" />
+                        <input name="VoucherDetaillist[${sr-1}].Detail" value="${nar}" />
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+                    <td class="text-start fw-bold">Cash</td>
+                    <td class="text-end fw-bold">0</td>
+                    <td class="text-end fw-bold">${price}</td>
+                    <td class=" fw-bold">${nar}</td>
+                    <td class="text-center">
+                        
+                    </td>
+                </tr>
+            `);
+            $("#dr").val("");
+            $("#nar").val("");
+           
+            $("#product").val("").trigger("change");
+            calculation();
+            reassignSr();
+        }
+
+        function reassignSr() {
+            $("#itemdtable tr").each(function(index){
+                var row = $(this);
+                row.find("td.sr").text(index + 1);
+                row.find("input").each(function () {
+                    var oldName = $(this).attr("name");
+                    if (!oldName) return;
+                    var newName = oldName.replace(/VoucherDetaillist\[\d+\]/, `VoucherDetaillist[${index}]`);
+                    $(this).attr("name", newName);
+                });
+            });
+        }
+        function calculation() {
+            var Dr = 0, Cr = 0;
+            $("#itemdtable tr").each(function () {
+                var drValue = parseFloat($(this).find("input[name$='.Dr']").val()) || 0;
+                var crValue = parseFloat($(this).find("input[name$='.Cr']").val()) || 0;
+                Dr += drValue;
+                Cr += crValue;
+            });
+
+            $("#totaldr").val(Dr.toFixed(2));
+            $("#totalcr").val(Cr.toFixed(2));
+        }
+
+        $(document).ready(function () {
+            document.getElementById('ImageFile').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('imagePreview');
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const originalImage = '@(Model?.Voucher?.ImagePath ?? "")';
+                    if (originalImage) {
+                        preview.src = originalImage;
+                        preview.style.display = 'block';
+                    } else {
+                        preview.src = '#';
+                        preview.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        function qtytotal(){
+            var qty = parseFloat($("#qty").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+            $("#total").val(price * qty);
+        }
+
+        $(document).ready(function(){
+            $("#product").on("change", function(){
+                var pid = $(this).val();
+                if(pid === "" || pid == null){
+                    $("#price").val("");
+                    $("#total").val("");
+                    $("#qty").val("");
+                    return;
+                }
+                var price = parseFloat($("#product option:selected").data("price")) || 0;
+                $("#price").val(price);
+                $("#total").val(price);
+                $("#qty").val("1");
+            });
+        });
+    </script>
+}

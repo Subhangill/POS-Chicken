@@ -1,0 +1,102 @@
+﻿@model List<Voucher>
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fa fa-bank mr-2 text-primary"></i>
+
+                            Bank Payment Voucher Management
+                        </h3>
+                        <a asp-action="Create" class="btn btn-primary rounded">
+                            <i class="fa fa-plus mr-1"></i> Add New
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Date Filter Form -->
+                        <form asp-action="Index" method="get" class="row mb-4 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">From Date</label>
+                                <input type="date"
+                                       name="s_date"
+                                       class="form-control"
+                                       value="@ViewBag.s_date" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">To Date</label>
+                                <input type="date"
+                                       name="e_date"
+                                       class="form-control"
+                                       value="@ViewBag.e_date" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
+                            </div>
+
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table datatable table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="60" class="text-center">Sr</th>
+                                        <th width="70"># Voucher</th>
+                                        <th>Date</th>
+                                        <th>Naration</th>
+                                        <th>Total Amount</th>
+                                        <th width="10" class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <thead class="custom">
+                                    <tr>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search here.." /></th>
+                                        <th class="p-1 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int SR = 1;
+                                    }
+                                    @foreach (var items in Model)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@SR</td>
+                                            <td class="text-center">@(items.InvId)</td>
+                                            <td class="text-center">@(items.Date.ToString("dd-MMM-yyyy"))</td>
+                                            <td class="text" title="@(items.Detail ?? "N/A")">
+                                                @(string.IsNullOrWhiteSpace(items.Detail) ? "N/A" : items.Detail)
+                                            </td>
+                                            <td class="text-end fw-bold">@(items.Dr.ToString("N2"))</td>
+                                            <td class="text-center">
+                                                <a asp-action="Edit" asp-route-id="@items.Id" class="btn btn-primary btn-sm" title="Edit">
+                                                    <i class="fas fa-pencil"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@items.Id"
+                                                   class="btn btn-danger btn-sm"
+                                                   title="Delete"
+                                                   onclick="return confirm('Are you sure you want to delete this record?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        SR++;
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

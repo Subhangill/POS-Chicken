@@ -1,0 +1,451 @@
+@model SaleVm
+@{
+    int sr = 0;
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+                     
+                    <!-- HEADER -->
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fa fa-warehouse mr-2"></i>
+                            @(Model.Sale.Id > 0 ? "Update Sale Invoice" : "New Sale Invoice")
+                        </h3>
+
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fa fa-list"></i> View List
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" method="post" asp-action="Save" asp-controller="Sale">
+                            <input type="hidden" asp-for="Sale.Id" class="form-control" />
+
+
+                            <!-- ================= TOP INFO ================= -->
+                            <div class="row">
+
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-calendar"></i> Date</label>
+                                    <input type="date" asp-for="Sale.Date" class="form-control" />
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-user"></i> Customer</label>
+                                    <select asp-for="Sale.Customerid" class="form-control search-select" required>
+                                        <option value="">-Select Customer-</option>
+                                        @foreach (var itm in Model.Customerlist)
+                                        {
+                                            <option value="@itm.Id">@(itm.Name ?? "N/A")</option>
+                                        }
+                                    </select>
+                                </div>
+
+
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-sticky-note"></i> Note</label>
+                                    <input asp-for="Sale.Note" type="text" class="form-control" placeholder="Optional" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-money-bill"></i> Type</label>      
+                                    <select asp-for="Sale.InvType" class="form-control form-search" required>
+                                        <option value="Credit">Credit</option>
+                                        <option value="Cash">Cash</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-image"></i> Document Image</label>
+                                    <input type="file" asp-for="Sale.ImageFile" class="form-control" id="ImageFile" accept="image/*" />
+                                    <div class="mt-2">
+                                        <img id="imagePreview" src="@(string.IsNullOrEmpty(Model?.Sale?.ImagePath) ? "#" : Model.Sale.ImagePath)" 
+                                             alt="Image Preview" 
+                                             style="max-width: 150px; max-height: 150px; display: @(string.IsNullOrEmpty(Model?.Sale?.ImagePath) ? "none" : "block"); border: 1px solid #ddd; padding: 5px; border-radius: 5px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- ================= ITEM SECTION (COMPACT FIXED) ================= -->
+                            <div class="card shadow-sm mt-2">
+
+                                <div class="card-header bg-light py-2">
+                                    <strong>
+                                        <i class="fa fa-boxes"></i> Add Items
+                                    </strong>
+                                </div>
+
+                                <div class="card-body py-2 px-3">
+
+                                    <div class="row g-2 align-items-end">
+
+                                        <div class="col-md-3">
+                                            <label class="fw-bold mb-1">Item</label>
+                                            <select id="product" class="search-select form-control form-control-sm">
+                                                <option value="">Select Item</option>
+                                                @foreach (var itm in Model.Productlist)
+                                                {
+                                                    <option data-price="@itm.Price" value="@itm.Id">@(itm.Name ?? "N/A")</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Price</label>
+                                            <input type="number" id="price" onkeyup="qtytotal()" class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <label class="fw-bold mb-1">Weight</label>
+                                            <input type="number" onkeyup="qtytotal()" id="qty" class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Total</label>
+                                            <input type="number" id="total" class="text-center fw-bold fs-7 form-control form-control-sm" readonly />
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="fw-bold mb-1">Rent</label>
+                                            <input type="number" onkeyup="qtytotal()" id="rent" class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Net</label>
+                                            <input type="number" id="linenet" class="text-center fw-bold fs-7 form-control form-control-sm" readonly />
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <button onclick="addrow()" type="button" class="btn btn-success btn-block">
+                                                <i class="fa fa-plus"></i> 
+                                            </button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- ================= ITEM TABLE (CLOSER) ================= -->
+                            <div class="mt-2">
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Item</th>
+                                                <th class="text-center">Price</th>
+                                                <th class="text-center">Weight</th>
+                                                <th class="text-center">Cut</th>
+                                                <th class="text-center">Total</th>
+                                                <th class="text-center">Rent</th>
+                                                <th class="text-center">Net</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="itemdtable">
+                                            @if (Model.SaleDetaillist != null && Model.SaleDetaillist.Count > 0)
+                                            {
+                                                foreach (var itm in Model.SaleDetaillist)
+                                                {
+                                                    string itemname = Model.Productlist.Where(e => e.Id == itm.Pid).Select(e => e.Name).FirstOrDefault() ?? "";
+                                                    <tr>
+                                                        <td class="d-none">
+                                                            <input name="SaleDetaillist[@sr].Pid" value="@itm.Pid" />
+                                                            <input name="SaleDetaillist[@sr].Price" value="@itm.Price" />
+                                                            <input name="SaleDetaillist[@sr].Qty" value="@itm.Qty" />
+                                                            <input name="SaleDetaillist[@sr].Total" value="@itm.Total" />
+                                                            <input name="SaleDetaillist[@sr].Rent" value="@itm.Rent" />
+                                                            <input name="SaleDetaillist[@sr].Nettotal" value="@itm.Nettotal" />
+                                                        </td>
+                                                        <td class="text-center fw-bold sr"> @(sr = sr + 1) </td>
+                                                        <td class="text-start fw-bold"> @itemname </td>
+                                                        <td class="text-end fw-bold"> @itm.Price </td>
+                                                        <td class="text-end fw-bold"> @itm.Qty </td>
+                                                        <td class="text-center">
+                                                            <input type="number" name="SaleDetaillist[@(sr-1)].Cutof" class="form-control text-center cut-input" value="@itm.Cutof" style="width: 80px; margin: 0 auto;" />
+                                                        </td>
+                                                        <td class="text-end fw-bold total-val-text"> @itm.Total </td>
+                                                        <td class="text-end fw-bold"> @itm.Rent </td>
+                                                        <td class="text-end fw-bold nettotal-val-text"> @itm.Nettotal </td>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                            <!-- ================= SUMMARY ================= -->
+                            <div class="row mt-3">
+
+                                <div class="col-md-6">
+                                    <button type="submit" onclick="return saveCheck()" class="btn btn-primary btn-lg">
+                                        <i class="fa fa-save"></i> @(Model.Sale.Id > 0 ? "Update Order" : "Save Order")
+                                    </button>
+
+                                    <a href="@Url.Action("Index")" class="btn btn-danger btn-lg ms-2">
+                                        <i class="fa fa-times"></i> Cancel
+                                    </a>
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <div class="card">
+                                        <div class="card-body py-2">
+
+                                            <div class="row">
+
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Gross Total</label>
+                                                    <input asp-for="Sale.Gross" id="grosstotal" class="text-center form-control" readonly />
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Discount (In Amt)</label>
+                                                    <input type="number" onkeyup="applyDiscount()" step="0.01" id="discount" asp-for="Sale.Discount" class="text-center form-control" />
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Net Total</label>
+                                                    <input asp-for="Sale.Nettotal" id="nettotal" class="text-center form-control  " style="font-weight:bold;color:#a60000;background-color:#fdd8d8;" readonly />
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        // ====================== PREVENT ENTER KEY SUBMIT ======================
+        $(document).on('keypress', 'form', function(e) {
+            if (e.keyCode === 13 || e.which === 13) {
+                var target = $(e.target);
+                // Allow Enter only on textarea or submit button
+                if (target.is('textarea') || target.is(':submit') || target.hasClass('btn')) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Optional: Also prevent on keydown for better compatibility
+        $(document).on('keydown', 'input, select', function(e) {
+            if (e.key === "Enter" || e.keyCode === 13) {
+                e.preventDefault();
+                // Optional: Move focus to next input field
+                var inputs = $(this).closest('form').find('input, select, textarea');
+                var nextInput = inputs[inputs.index(this) + 1];
+                if (nextInput) {
+                    $(nextInput).focus();
+                }
+                return false;
+            }
+        });
+
+        // ====================== EXISTING FUNCTIONS ======================
+        function applyDiscount(){
+            calculation();
+        }
+
+        function saveCheck(){
+            var sr = $("#itemdtable tr").length;
+            if(sr === 0){
+                alert("Please add items to order first!!");
+                return false;
+            }
+            return true;
+        }
+
+        $(document).on("click",".btn-delete",function(){
+            if(confirm("Do you want to remove this row???")){
+                $(this).closest("tr").remove();
+                reassignSr();
+                calculation();
+            }
+        });
+
+        function calculation(){
+            var total = 0;
+            $("#itemdtable tr").each(function(index, item){
+                var row = $(this);
+                total += parseFloat(row.find("input[name*='Nettotal']").val()) || 0;
+            });
+            var disc = parseFloat($("#discount").val()) || 0;
+            $("#grosstotal").val(total.toFixed(2));
+            $("#nettotal").val((total - disc).toFixed(2));
+        }
+
+        function addrow(){
+            var productid = parseInt($("#product").val()) || 0;
+            var itemtext = $("#product option:selected").text();
+            var qty = parseFloat($("#qty").val()) || 0;
+            var total = parseFloat($("#total").val()) || 0;
+            var rent = parseFloat($("#rent").val()) || 0;
+            var linenet = parseFloat($("#linenet").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+
+            if(productid <= 0){
+                alert("Please select an item!!");
+                return;
+            }
+            if(price <= 0){
+                alert("Please enter valid price!!");
+                $("#price").focus();
+                return;
+            }
+            if(qty <= 0){
+                alert("Please enter valid qty!!");
+                $("#qty").focus();
+                return;
+            }
+
+            var sr = $("#itemdtable tr").length + 1;
+
+            $("#itemdtable").append(`
+                <tr>
+                    <td class="d-none">
+                        <input name="SaleDetaillist[${sr-1}].Pid" value="${productid}" />
+                        <input name="SaleDetaillist[${sr-1}].Price" value="${price}" />
+                        <input name="SaleDetaillist[${sr-1}].Qty" value="${qty}" />
+                        <input name="SaleDetaillist[${sr-1}].Total" value="${total}" />
+                        <input name="SaleDetaillist[${sr-1}].Nettotal" value="${linenet}" />
+                        <input name="SaleDetaillist[${sr-1}].Rent" value="${rent}" />
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+                    <td class="text-start fw-bold">${itemtext}</td>
+                    <td class="text-end fw-bold">${price}</td>
+                    <td class="text-end fw-bold">${qty}</td>
+                    <td class="text-center">
+                        <input type="number" name="SaleDetaillist[${sr-1}].Cutof" class="form-control text-center cut-input" value="" style="width: 80px; margin: 0 auto;" />
+                    </td>
+                    <td class="text-end fw-bold total-val-text">${total}</td>
+                    <td class="text-end fw-bold">${rent}</td>
+                    <td class="text-end fw-bold nettotal-val-text">${linenet}</td>
+                    <td class="text-center">
+                        <button type="button"  class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+
+            $("#qty").val("");
+            $("#total").val("");
+            $("#price").val("");
+            $("#product").val("").trigger("change");
+            calculation();
+            reassignSr();
+        }
+
+        function reassignSr() {
+            $("#itemdtable tr").each(function(index){
+                var row = $(this);
+                row.find("td.sr").text(index + 1);
+                row.find("input").each(function () {
+                    var oldName = $(this).attr("name");
+                    if (!oldName) return;
+                    var newName = oldName.replace(/SaleDetaillist\[\d+\]/, `SaleDetaillist[${index}]`);
+                    $(this).attr("name", newName);
+                });
+            });
+        }
+
+        function qtytotal(){
+            var rent = parseFloat($("#rent").val()) || 0;
+            var qty = parseFloat($("#qty").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+            var total=price * qty;
+            $("#total").val(total);
+            $("#linenet").val(total-rent);
+        }
+
+        $(document).on("keyup change", ".cut-input", function() {
+            var row = $(this).closest("tr");
+            var price = parseFloat(row.find("input[name*='.Price']").val()) || 0;
+            var qty = parseFloat(row.find("input[name*='.Qty']").val()) || 0;
+            var rent = parseFloat(row.find("input[name*='.Rent']").val()) || 0;
+            var cut = parseFloat($(this).val()) || 0;
+            
+            var total = (qty - cut) * price;
+            var nettotal = total - rent;
+            
+            row.find("input[name*='.Total']").val(total.toFixed(2));
+            row.find("input[name*='.Nettotal']").val(nettotal.toFixed(2));
+            
+            row.find(".total-val-text").text(total.toFixed(2));
+            row.find(".nettotal-val-text").text(nettotal.toFixed(2));
+            
+            calculation();
+        });
+
+        $(document).ready(function(){
+            $("#product").on("change", function(){
+                var pid = $(this).val();
+                if(pid === "" || pid == null){
+                    $("#price").val("");
+                    $("#rent").val("");
+                    $("#linenet").val("");
+                    $("#total").val("");
+                    $("#qty").val("");
+                    return;
+                }
+                var price = parseFloat($("#product option:selected").data("price")) || 0;
+                $("#linenet").val(price);
+                $("#price").val(price);
+                $("#total").val(price);
+                $("#qty").val("1");
+            });
+
+            document.getElementById('ImageFile').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('imagePreview');
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    const originalImage = '@(Model?.Sale?.ImagePath ?? "")';
+                    if (originalImage) {
+                        preview.src = originalImage;
+                        preview.style.display = 'block';
+                    } else {
+                        preview.src = '#';
+                        preview.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+}

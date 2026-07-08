@@ -1,0 +1,416 @@
+﻿@model PaymentVm
+@{
+    int sr = 0;
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+
+                    <!-- HEADER -->
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-hand-holding-usd mr-2"></i>
+                            @(Model.PaymentMaster.Id > 0 ? "Update Payment Invoice" : "Add Payment Invoice")
+                        </h3>
+
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fa fa-list"></i> View List
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" method="post" asp-action="Save" asp-controller="PaymentSetup">
+                            <input type="hidden" asp-for="PaymentMaster.Id" class="form-control" />
+
+
+                            <!-- ================= TOP INFO ================= -->
+                            <div class="row">
+
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-calendar"></i> Date</label>
+                                    <input type="date" asp-for="PaymentMaster.Date" class="form-control" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label><i class="fa fa-user"></i> Supplier</label>
+                                    <select class="form-control search-select " id="suppid" asp-for="PaymentMaster.Suppid" required >
+                                        <option value="">--Select Supplier--</option>
+                                        @foreach (var itm in Model.Supplierlist)
+                                        {
+                                            <option value="@itm.Id">@itm.Name</option>
+                                        }
+                                    </select>
+                                   
+                                </div>
+
+                             
+                                
+                                <div class="col-md-3">
+                                    <label><i class="fa fa-sticky-note"></i> Note</label>
+                                    <input asp-for="PaymentMaster.Note" type="text" class="form-control" placeholder="Optional" />
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- ================= ITEM SECTION (COMPACT FIXED) ================= -->
+                            <div class="card shadow-sm mt-2">
+
+                                <div class="card-header bg-light py-2">
+                                    <strong>
+                                        <i class="fa fa-boxes"></i> Add Items
+                                    </strong>
+                                </div>
+
+                                <div class="card-body py-2 px-3">
+
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Start</label>
+                                            <input type="date" id="s_date" value="@(DateTime.Today.ToString("yyyy-MM-dd"))" class=" fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">End</label>
+                                            <input type="date" id="e_date" value="@(DateTime.Today.ToString("yyyy-MM-dd"))" class="fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="fw-bold mb-1">Item</label>
+                                            <select id="product" class="search-select form-control form-control-sm">
+                                                <option value="">Select Item</option>
+                                                @foreach (var itm in Model.Productlist)
+                                                {
+                                                    <option data-price="@itm.Price" value="@itm.Id">@(itm.Name ?? "N/A")</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Total Weight</label>
+                                            <input type="number" id="receivedweight" readonly  class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="fw-bold mb-1">Weight</label>
+                                            <input type="number" id="qty" onkeyup="qtytotal()"  class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Price</label>
+                                            <input type="number" id="price" onkeyup="qtytotal()" class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Total</label>
+                                            <input type="number" id="total" class="text-center fw-bold fs-7 form-control form-control-sm" readonly />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <button onclick="addrow()" type="button" class="btn btn-success btn-block">
+                                                <i class="fa fa-plus"></i> Add
+                                            </button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- ================= ITEM TABLE (CLOSER) ================= -->
+                            <div class="mt-2">
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Period</th>
+                                                <th>Item</th>
+                                                <th class="text-center">Rate</th>
+                                                <th class="text-center">Weight</th>
+                                                <th class="text-center">Total</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="itemdtable">
+                                            @if (Model.PaymentDetaillist != null && Model.PaymentDetaillist.Count > 0)
+                                            {
+                                                foreach (var itm in Model.PaymentDetaillist)
+                                                {
+                                                    string itemname = Model.Productlist.Where(e => e.Id == itm.Pid).Select(e => e.Name).FirstOrDefault() ?? "";
+                                                    <tr>
+                                                        <td class="d-none">
+                                                            <input name="PaymentDetaillist[@sr].Pid" value="@itm.Pid" />
+                                                            <input name="PaymentDetaillist[@sr].Rate" value="@itm.Rate" />
+                                                            <input name="PaymentDetaillist[@sr].Weight" value="@itm.Weight" />
+                                                            <input name="PaymentDetaillist[@sr].Total" value="@itm.Total" />
+                                                            <input name="PaymentDetaillist[@sr].Startdate" value="@itm.Startdate.ToString("yyyy-MM-dd")" />
+                                                            <input name="PaymentDetaillist[@sr].Enddate" value="@itm.Enddate.ToString("yyyy-MM-dd")" />
+                                                        </td>
+                                                        <td class="text-center fw-bold sr"> @(sr = sr + 1) </td>
+                                                        <td class="text fw-bold "> @(itm.Startdate.ToString("yyyy-MM-dd") + " to " + itm.Enddate.ToString("yyyy-MM-dd")) </td>
+                                                        <td class="text-start fw-bold"> @itemname </td>
+                                                        <td class="text-end fw-bold"> @itm.Rate </td>
+                                                        <td class="text-end fw-bold"> @itm.Weight </td>
+                                                        <td class="text-end fw-bold"> @itm.Total </td>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- ================= SUMMARY ================= -->
+                            <div class="row mt-3">
+
+                                <div class="col-md-6">
+                                    <button type="submit" onclick="return saveCheck()" class="btn btn-primary btn-lg">
+                                        <i class="fa fa-save"></i>@(Model.PaymentMaster.Id == 0 ? "Add Payment Detail" : "Update Payment Detail")
+                                    </button>
+
+                                    <a href="@Url.Action("Index")" class="btn btn-danger btn-lg ms-2">
+                                        <i class="fa fa-times"></i> Cancel
+                                    </a>
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <div class="card">
+                                        <div class="card-body py-2">
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Gross Total</label>
+                                                    <input asp-for="PaymentMaster.Grossamount" id="grosstotal" class="text-center form-control" readonly />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Previous</label>
+                                                    <input asp-for="PaymentMaster.Previous" id="previous" class="text-center form-control" readonly />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="mb-1 fw-bold text-dark">Total</label>
+                                                    <input asp-for="PaymentMaster.Totalamount" id="totalamount" class="text-center form-control" readonly />
+                                                </div>
+
+                                               
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        // ====================== PREVENT ENTER KEY SUBMIT ======================
+        $(document).on('keypress', 'form', function(e) {
+            if (e.keyCode === 13 || e.which === 13) {
+                var target = $(e.target);
+                // Allow Enter only on textarea or submit button
+                if (target.is('textarea') || target.is(':submit') || target.hasClass('btn')) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Optional: Also prevent on keydown for better compatibility
+        $(document).on('keydown', 'input, select', function(e) {
+            if (e.key === "Enter" || e.keyCode === 13) {
+                e.preventDefault();
+                // Optional: Move focus to next input field
+                var inputs = $(this).closest('form').find('input, select, textarea');
+                var nextInput = inputs[inputs.index(this) + 1];
+                if (nextInput) {
+                    $(nextInput).focus();
+                }
+                return false;
+            }
+        });
+
+        // ====================== EXISTING FUNCTIONS ======================
+        function applyDiscount(){
+            calculation();
+        }
+
+        function saveCheck(){
+            var sr = $("#itemdtable tr").length;
+            if(sr === 0){
+                alert("Please add payment details first!!");
+                return false;
+            }
+            return true;
+        }
+
+        $(document).on("click",".btn-delete",function(){
+            if(confirm("Do you want to remove this row???")){
+                $(this).closest("tr").remove();
+                reassignSr();
+                calculation();
+            }
+        });
+
+        function calculation(){
+            var total = 0;
+            $("#itemdtable tr").each(function(index, item){
+                var row = $(this);
+                total += parseFloat(row.find("input[name*='Total']").val()) || 0;
+            });
+                    var previous = parseFloat($("#previous").val()) || 0;
+            $("#grosstotal").val(total.toFixed(2));
+                    $("#totalamount").val((total + previous).toFixed(2));
+        }
+
+        function addrow(){
+            var productid = parseInt($("#product").val()) || 0;
+            var s_date = $("#s_date").val();
+            var e_date = $("#e_date").val();
+            var itemtext = $("#product option:selected").text();
+            var qty = parseFloat($("#qty").val()) || 0;
+            var total = parseFloat($("#total").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+
+            if(productid <= 0){
+                alert("Please select an item!!");
+                return;
+            }
+            if(price <= 0){
+                alert("Please enter valid price!!");
+                $("#price").focus();
+                return;
+            }
+            if(qty <= 0){
+                alert("Please enter valid qty!!");
+                $("#qty").focus();
+                return;
+            }
+
+            var sr = $("#itemdtable tr").length + 1;
+
+            $("#itemdtable").append(`
+                <tr>
+                    <td class="d-none">
+                        <input name="PaymentDetaillist[${sr-1}].Pid" value="${productid}" />
+                        <input name="PaymentDetaillist[${sr-1}].Rate" value="${price}" />
+                        <input name="PaymentDetaillist[${sr-1}].Weight" value="${qty}" />
+                        <input name="PaymentDetaillist[${sr-1}].Total" value="${total}" />
+                        <input name="PaymentDetaillist[${sr-1}].Startdate" value="${s_date}" />
+                        <input name="PaymentDetaillist[${sr-1}].Enddate" value="${e_date}" />
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+        <td class="text-start fw-bold">${s_date} to ${e_date}</td>
+        <td class="text-start fw-bold">${itemtext}</td>
+                    <td class="text-end fw-bold">${price}</td>
+                    <td class="text-end fw-bold">${qty}</td>
+                    <td class="text-end fw-bold">${total}</td>
+                    <td class="text-center">
+                        <button type="button"class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+
+            $("#qty").val("");
+            $("#total").val("");
+            $("#price").val("");
+            $("#product").val("").trigger("change");
+            calculation();
+            reassignSr();
+        }
+
+        function reassignSr() {
+            $("#itemdtable tr").each(function(index){
+                var row = $(this);
+                row.find("td.sr").text(index + 1);
+                row.find("input").each(function () {
+                    var oldName = $(this).attr("name");
+                    if (!oldName) return;
+                    var newName = oldName.replace(/PaymentDetaillist\[\d+\]/, `PaymentDetaillist[${index}]`);
+                    $(this).attr("name", newName);
+                });
+            });
+        }
+
+        function qtytotal(){
+            var qty = parseFloat($("#qty").val()) || 0;
+            var totalweight = parseFloat($("#receivedweight").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+                    if(qty > totalweight){
+                                $("#qty").val(totalweight);
+                        return;
+                    }
+            $("#total").val(price * qty);
+        }
+
+        $(document).ready(function(){
+            $("#product").on("change", function(){
+                var pid = $(this).val();
+                if(pid === "" || pid == null){
+                    $("#price").val("");
+                    $("#total").val("");
+                    $("#qty").val("");
+                    return;
+                }
+                var suppid=parseInt($("#suppid").val())||0;
+                var s_date=$("#s_date").val();
+                var e_date=$("#e_date").val();
+                if(suppid==0)
+{
+    alert("Select Supplier first!!");
+    $("#product").val("").trigger("change");
+    return;
+}
+                              if(!s_date||!e_date)
+        {
+            
+            return;
+        }
+         $.ajax({
+            type: "GET",
+            url: "/PaymentSetup/GetReceivedWeight",
+            data: {
+                        sid: suppid,
+                pid: pid,
+                s_date: s_date,
+                e_date: e_date
+            },
+            success: function (data) {
+                       var weight=parseFloat(data)||0;
+                       $("#receivedweight").val(weight);
+            },
+            error: function (xhr, status, error) {
+                console.log("Status:", status);
+                console.log("Error:", error);
+                console.log("Response:", xhr.responseText);
+
+                alert("An error occurred while fetching the received weight.");
+            }
+        });
+
+
+            });
+        });
+    </script>
+}

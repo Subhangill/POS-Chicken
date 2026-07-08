@@ -1,0 +1,113 @@
+﻿@model AccountVm
+
+<div class="page-wrapper">
+    <div class="content">
+
+
+        <!-- /Page Header -->
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">@(Model.Account.Id>0?"Update Account":"Add New Account")</h4>
+                        <a asp-action="Index" class="btn btn-primary rounded "><i class="fa fa-list mr-1"></i>Back</a>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" asp-controller="Account" asp-action="Save">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Account.HeadId">Account Head</label>
+                                        <select onchange="getallheads(this.value)" required class="form-control form-select" asp-for="Account.HeadId">
+                                            <option value="">--Select Account Head--</option>
+                                            <option value="1">Asset</option>
+                                            <option value="2">Liability</option>
+                                            <option value="3">Capital</option>
+                                            <option value="4">Revenue</option>
+                                            <option value="5">Expense</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Account.SubHead">Account Sub Head</label>
+                                        <select required id="subheaddropdown" class="form-control form-select search-select" asp-for="Account.SubHead">
+                                            <option value="">--Select Sub Head Account--</option>
+                                            @if (Model.Account.Id > 0 && Model.Account_SubHeadlist != null)
+                                            {
+                                                @foreach (var itm in Model.Account_SubHeadlist)
+                                                {
+                                                    <option value="@itm.Id">@itm.Name</option>
+                                                }
+                                            }
+                                            else
+                                            {
+
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-2">
+                                    <div class="form-group">
+                                        <label asp-for="Account.Name">Name</label>
+                                        <input placeholder="Enter title...." required class="form-control" asp-for="Account.Name" />
+                                        <input type="hidden" class="form-control" asp-for="Account.Id" />
+                                        <input type="hidden" class="form-control" asp-for="Account.AccountNo" />
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-center mt-5">
+                                    <div class="form-group">
+                                        <button class="btn col-1 btn-primary" type="submit">
+                                            @(Model.Account.Id > 0 ? "Update" : "Save")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+                                        @section Scripts{
+                                            <script>
+             function getallheads(head) {
+
+            if (head == "" || head == null) {
+                $("#subheaddropdown").empty().append(`
+                    <option value="">--Select Sub Head Account--</option>
+                `);
+                return;
+            }
+
+            $.ajax({
+                url: '/Account/GetSubHeads', // Your controller action
+                type: 'GET',
+                data: { headid: head },
+                success: function (response) {
+                    console.log(response);
+                    $("#subheaddropdown").empty().append(`
+                        <option value="">--Select Sub Head Account--</option>
+                    `);
+
+                    $.each(response, function (i, item) {
+                        $("#subheaddropdown").append(`
+                            <option value="${item.id}">${item.name}</option>
+                        `);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+
+                                            </script>
+                                        }

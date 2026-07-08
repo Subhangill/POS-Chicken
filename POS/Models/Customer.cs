@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace POS.Models
 {
@@ -13,5 +15,7 @@ namespace POS.Models
         public string? Email { get; set; }
         public string? BusinessName { get; set; }   
         public int AreaId { get; set; }
+        [NotMapped] public IFormFile? ImageFile { get; set; }
+        [NotMapped] public string? ImagePath { get; set; }
     }
 }

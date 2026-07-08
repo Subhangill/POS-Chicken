@@ -1,0 +1,193 @@
+﻿@model ReportVm
+@{
+    int sr = 1;
+}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-boxes text-dark me-2"></i>
+                            Waste Report
+                        </h3>
+
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Filter Form -->
+                        <form asp-action="Index" method="post">
+                            <div class="row g-2 mb-1">
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1">From Date</label>
+                                    <input type="date" asp-for="WasteReportfilter.From"
+                                           value="@(Model.WasteReportfilter.From.ToString("yyyy-MM-dd"))"
+                                           class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1">To Date</label>
+                                    <input type="date" asp-for="WasteReportfilter.To"
+                                           value="@(Model.WasteReportfilter.To.ToString("yyyy-MM-dd"))"
+                                           class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-4" id="supdiv" style="display:@(Model.WasteReportfilter.Type == 0 ? "none" : "block")">
+                                    <label class="form-label mb-1">Supplier</label>
+                                    <select asp-for="WasteReportfilter.Sid" class="form-control search-select">
+                                        <option value="0">All Supplier</option>
+                                        @foreach (var itm in Model.Supplierlist)
+                                        {
+                                            <option value="@itm.Id">@(itm.Name)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4" id="itemdiv" style="display:@(Model.WasteReportfilter.Type == 0 ? "none" : "block")">
+                                    <label class="form-label mb-1">Product</label>
+                                    <select id="itemlist" asp-for="WasteReportfilter.Pid" class="form-control search-select">
+                                        <option value="0">All Products</option>
+                                        @foreach (var itm in Model.Productlist)
+                                        {
+                                            <option value="@itm.Id">@(itm.Name)</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-end mb-1">
+                                <div class="col-md-2">
+                                    <label class="form-label d-block mb-2">Source</label>
+                                    <select class="form-control form-select " asp-for="WasteReportfilter.Source">
+                                        <option value="-1">All Sources</option>
+                                        <option value="0">Route</option>
+                                        <option value="1">Sended By Supplier</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label d-block mb-2">Report Type</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input asp-for="WasteReportfilter.Type" onchange="loaddiv(this.value)" class="form-check-input" type="radio"
+                                                   id="invoice" value="0" />
+                                            <label class="form-check-label" for="invoice">Invoice Summary</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input asp-for="WasteReportfilter.Type" onchange="loaddiv(this.value)" class="form-check-input" type="radio"
+                                                   id="item" value="1" />
+                                            <label class="form-check-label" for="item">Item Detail</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <button value="true" name="WasteReportfilter.IsSearch" type="submit" class="btn btn-primary">
+                                        <i class="fa fa-search me-1"></i> Show Report
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <hr class="border border-dark" />
+
+
+                        <!-- Modern Bootstrap Table -->
+                        <div class="table-responsive" style="max-height: 580px; overflow-y: auto;">
+                            <table class="table datatable-report table-bordered align-middle">
+                                @if (Model.WasteReportfilter.Type == 0)
+                                {
+                                    <!-- Invoice Summary -->
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>INV</th>
+                                            <th>Date</th>
+                                            <th>Supplier</th>
+                                            <th>Area</th>
+                                            <th>Driver</th>
+                                            <th class="text-center">Gross Weight</th>
+                                            <th class="text-center">Waste Weight</th>
+                                            <th class="text-center">Net Weight</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var itm in Model.WreportInvoicelist)
+                                        {
+                                            <tr>
+                                                <td>@itm.Id</td>
+                                                <td>@itm.Date.ToString("dd-MMM-yy")</td>
+                                                <td>@(itm.Suppname??"N/A")</td>
+                                                <td>@(itm.Areaname ?? "N/A")</td>
+                                                <td>@(itm.Empname ?? "N/A")</td>
+                                                <td class="text-end">@itm.Grossweight.ToString("N2")</td>
+                                                <td class="text-end ">@itm.Wasteweight.ToString("N2")</td>
+                                                <td class="text-end fw-bold">@itm.Netweight.ToString("N2")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                }
+                                else
+                                {
+                                    <!-- Item Detail -->
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th style="width:60px">Sr</th>
+                                            <th>Item Name</th>
+                                            <th class="text-center">Weight</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var itm in Model.WreportItemdetaillist)
+                                        {
+                                            <tr>
+                                                <td>@sr</td>
+                                                <td>@itm.Name</td>
+                                                <td class="text-end">@itm.Weight</td>
+                                            </tr>
+                                            sr++;
+                                        }
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loaditems(id) {
+            var cid = parseInt(id) === 0 ? 3 : 4;
+            $.ajax({
+                url: "/PurchaseReport/GetItems",
+                type: "GET",
+                data: { cid: cid },
+                success: function (data) {
+                    $("#itemlist").empty();
+                    $("#itemlist").append(`<option value="0">All Products</option>`);
+                    $.each(data, function (index, item) {
+                        $("#itemlist").append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+                }
+            });
+        }
+                function loaddiv(id) {
+            if(id==0){
+            document.getElementById("itemdiv").style.display="none";
+            document.getElementById("supdiv").style.display="none";
+            }else{
+                document.getElementById("itemdiv").style.display="block";
+                document.getElementById("supdiv").style.display="block";
+            }
+
+
+        }
+        function exportToExcel() {
+            alert("Exporting to Excel... (Connect with backend later)");
+        }
+
+        function exportToPDF() {
+            alert("Exporting to PDF... (Connect with backend later)");
+        }
+    </script>
+}

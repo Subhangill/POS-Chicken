@@ -1,0 +1,35 @@
+[13:50:50] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error in Finish Purchase ID: 0
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: NullReferenceException
+Message: Object reference not set to an instance of an object.
+Stack Trace:    at POS.Controllers.FinishPurchaseController.Save(PurchaseVm purchaseVm)
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+
+[13:51:44] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error in Finish Purchase ID: 0
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: DbUpdateException
+Message: An error occurred while saving the entity changes. See the inner exception for details.
+Stack Trace:    at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IList`1 entries)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(StateManager stateManager, Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.<>c.<SaveChanges>b__112_0(DbContext _, ValueTuple`2 t)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
+   at POS.Controllers.FinishPurchaseController.Save(PurchaseVm purchaseVm)
+--------------------------------------------------------------------------------
+Inner Exception: Invalid column name 'Discriminator'.
+================================================================================
+

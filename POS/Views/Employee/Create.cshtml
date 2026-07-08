@@ -12,7 +12,7 @@
 
                     </div>
                     <div class="card-body">
-                        <form asp-action="Save" method="post">
+                        <form asp-action="Save" method="post" enctype="multipart/form-data">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -59,8 +59,16 @@
                                         <label for="Salary" class="form-label">Salary</label>
                                         <input type="number" asp-for="employee.Salary" class="form-control" id="Salary" required>
                                     </div>
+                                    <div class="col-md-6">
+                                        <label for="ImageFile" class="form-label">Employee Image</label>
+                                        <input type="file" asp-for="employee.ImageFile" class="form-control" id="ImageFile" accept="image/*">
+                                        <div class="mt-2">
+                                            <img id="imagePreview" src="@(string.IsNullOrEmpty(Model?.employee?.ImagePath) ? "#" : Model.employee.ImagePath)" 
+                                                 alt="Image Preview" 
+                                                 style="max-width: 150px; max-height: 150px; display: @(string.IsNullOrEmpty(Model?.employee?.ImagePath) ? "none" : "block"); border: 1px solid #ddd; padding: 5px; border-radius: 5px;" />
+                                        </div>
+                                    </div>
                                     <input type="hidden" asp-for="employee.Id" />
-
                                 </div>
                             </div>
 
@@ -75,6 +83,32 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('ImageFile').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const originalImage = '@(Model?.employee?.ImagePath ?? "")';
+                if (originalImage) {
+                    preview.src = originalImage;
+                    preview.style.display = 'block';
+                } else {
+                    preview.src = '#';
+                    preview.style.display = 'none';
+                }
+            }
+        });
+    </script>
+}
 
 
 

@@ -12,7 +12,7 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table datatable table-bordered">
-                                <thead >
+                                <thead class="thead-light" >
                                     <tr>
                                         <th width="20%" class="text-center">SR</th>
                                         <th>Name</th>
@@ -21,8 +21,8 @@
                                 </thead>
                                 <thead class="custom">
                                     <tr>
-                                        <th class="p-1"><input type="text" class="form-control form-control-sm col-search" placeholder="Search SR" /></th>
-                                        <th class="p-1"><input type="text" class="form-control form-control-sm col-search" placeholder="Search Name" /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search SR" /></th>
+                                        <th class="p-1"><input type="text" class="form-control form-control-sm input-dt-search" placeholder="Search Name" /></th>
                                         <th class="p-1 text-center"></th>
                                     </tr>
                                 </thead>
@@ -35,8 +35,9 @@
                                             <td>@item.Name</td>
                                             <td class="text-center">
                                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm" title="Edit"><i class="fas fa-pencil"></i></a>
-                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></a>
-                                            </td>
+                                              @if(item.Id>1)
+                                              {  <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></a>
+                                         }   </td>
                                         </tr>
                                         SR++; 
                                     }

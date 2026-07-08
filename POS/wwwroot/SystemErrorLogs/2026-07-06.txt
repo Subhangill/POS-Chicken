@@ -1,0 +1,168 @@
+[14:45:50] ERROR in Method: GetList
+--------------------------------------------------------------------------------
+Query: SELECT pr.Name AS Pname, ISNULL(SUM(pd.Qty),0) AS Qty, ISNULL(SUM(pd.Nettotal),0) AS Total, pd.Pid FROM SaleDetail pd INNER JOIN Sale p ON p.Id=pd.InvId LEFT JOIN Product pr ON pr.Id=pd.Pid WHERE p.Date BETWEEN @from AND @to AND (@Custid IS NULL OR p.SuppId=@Custid) AND (@Pid IS NULL OR pd.Pid=@Pid) GROUP BY pd.Pid, pr.Name ORDER BY pr.Name
+Parameters: {"from":"2026-07-06","to":"2026-07-06","Custid":null,"Pid":null}
+--------------------------------------------------------------------------------
+Exception Type: SqlException
+Message: Invalid column name 'SuppId'.
+Stack Trace:    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean isAsync, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1189
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1217
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 848
+   at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param) in D:\Projects\Poultry Pos Industrial State\POS\Data\Reporsitory\Repository.cs:line 156
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+
+[14:45:50] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error coming in getting sale report:Error executing query: Invalid column name 'SuppId'.
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: Exception
+Message: Error executing query: Invalid column name 'SuppId'.
+Stack Trace:    at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param) in D:\Projects\Poultry Pos Industrial State\POS\Data\Reporsitory\Repository.cs:line 165
+   at POS.Controllers.SaleReportController.Index(ReportVm reportVm) in D:\Projects\Poultry Pos Industrial State\POS\Controllers\SaleReportController.cs:line 42
+--------------------------------------------------------------------------------
+Inner Exception: Invalid column name 'SuppId'.
+================================================================================
+
+[14:46:20] ERROR in Method: GetList
+--------------------------------------------------------------------------------
+Query: SELECT pr.Name AS Pname, ISNULL(SUM(pd.Qty),0) AS Qty, ISNULL(SUM(pd.Nettotal),0) AS Total, pd.Pid FROM SaleDetail pd INNER JOIN Sale p ON p.Id=pd.InvId LEFT JOIN Product pr ON pr.Id=pd.Pid WHERE p.Date BETWEEN @from AND @to AND (@Custid IS NULL OR p.SuppId=@Custid) AND (@Pid IS NULL OR pd.Pid=@Pid) GROUP BY pd.Pid, pr.Name ORDER BY pr.Name
+Parameters: {"from":"2026-07-06","to":"2026-07-06","Custid":null,"Pid":null}
+--------------------------------------------------------------------------------
+Exception Type: SqlException
+Message: Invalid column name 'SuppId'.
+Stack Trace:    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean isAsync, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1189
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1217
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 848
+   at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param) in D:\Projects\Poultry Pos Industrial State\POS\Data\Reporsitory\Repository.cs:line 156
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+
+[14:46:20] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error coming in getting sale report:Error executing query: Invalid column name 'SuppId'.
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: Exception
+Message: Error executing query: Invalid column name 'SuppId'.
+Stack Trace:    at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param) in D:\Projects\Poultry Pos Industrial State\POS\Data\Reporsitory\Repository.cs:line 165
+   at POS.Controllers.SaleReportController.Index(ReportVm reportVm) in D:\Projects\Poultry Pos Industrial State\POS\Controllers\SaleReportController.cs:line 42
+--------------------------------------------------------------------------------
+Inner Exception: Invalid column name 'SuppId'.
+================================================================================
+
+[14:46:44] ERROR in Method: GetList
+--------------------------------------------------------------------------------
+Query: SELECT pr.Name AS Pname, ISNULL(SUM(pd.Qty),0) AS Qty, ISNULL(SUM(pd.Nettotal),0) AS Total, pd.Pid FROM SaleDetail pd INNER JOIN Sale p ON p.Id=pd.InvId LEFT JOIN Product pr ON pr.Id=pd.Pid WHERE p.Date BETWEEN @from AND @to AND (@Custid IS NULL OR p.SuppId=@Custid) AND (@Pid IS NULL OR pd.Pid=@Pid) GROUP BY pd.Pid, pr.Name ORDER BY pr.Name
+Parameters: {"from":"2026-07-06","to":"2026-07-06","Custid":null,"Pid":null}
+--------------------------------------------------------------------------------
+Exception Type: SqlException
+Message: Invalid column name 'SuppId'.
+Stack Trace:    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean isAsync, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1189
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1217
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 848
+   at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param) in D:\Projects\Poultry Pos Industrial State\POS\Data\Reporsitory\Repository.cs:line 156
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+
+[14:46:48] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error coming in getting sale report:Error executing query: Invalid column name 'SuppId'.
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: Exception
+Message: Error executing query: Invalid column name 'SuppId'.
+Stack Trace:    at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param) in D:\Projects\Poultry Pos Industrial State\POS\Data\Reporsitory\Repository.cs:line 165
+   at POS.Controllers.SaleReportController.Index(ReportVm reportVm) in D:\Projects\Poultry Pos Industrial State\POS\Controllers\SaleReportController.cs:line 42
+--------------------------------------------------------------------------------
+Inner Exception: Invalid column name 'SuppId'.
+================================================================================
+
+[19:03:52] ERROR in Method: GetList
+--------------------------------------------------------------------------------
+Query: SELECT wsd.pid,p.name as Name,ISNULL(SUM(wsd.Weight),0) as Weight FROM WasteReceiveSubDetail as wsd LEFT JOIN Product as p on p.id=wsd.Pid INNER JOIN WasteReceiveDetail as wdt on wdt.id=wsd.WasteReceiveDetailId INNER JOIN WasteReceivedMaster as wd on wd.Id=wdt.Invid WHERE wd.date BETWEEN @from and @to  AND wsd.Suppid = @Sid GROUP BY wsd.pid, p.name ORDER BY p.name 
+Parameters: {"from":"2026-07-06","to":"2026-07-06","Source":-1,"Sid":1,"pid":0}
+--------------------------------------------------------------------------------
+Exception Type: SqlException
+Message: Invalid column name 'Suppid'.
+Stack Trace:    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean isAsync, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Dapper.SqlMapper.ExecuteReaderWithFlagsFallback(IDbCommand cmd, Boolean wasClosed, CommandBehavior behavior) in /_/Dapper/SqlMapper.cs:line 1189
+   at Dapper.SqlMapper.QueryImpl[T](IDbConnection cnn, CommandDefinition command, Type effectiveType)+MoveNext() in /_/Dapper/SqlMapper.cs:line 1217
+   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   at Dapper.SqlMapper.Query[T](IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Boolean buffered, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 848
+   at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param)
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+
+[19:03:53] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error coming in getting Waste report:Error executing query: Invalid column name 'Suppid'.
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: Exception
+Message: Error executing query: Invalid column name 'Suppid'.
+Stack Trace:    at POS.Data.Reporsitory.Repository.GetList[T](String query, Object param)
+   at POS.Controllers.WasteReceivingReportController.Index(ReportVm reportVm)
+--------------------------------------------------------------------------------
+Inner Exception: Invalid column name 'Suppid'.
+================================================================================
+

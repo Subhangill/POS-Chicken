@@ -4,7 +4,7 @@
     {
         public static int GetCurrentUserId()
         {
-            return 0;
+            return 1;
         }
     }
 }

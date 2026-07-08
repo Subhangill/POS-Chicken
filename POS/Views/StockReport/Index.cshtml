@@ -1,0 +1,99 @@
+﻿@model ReportVm
+@{
+    int sr = 1; // Kept for reference if needed elsewhere
+}
+
+<div class="page-wrapper">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-boxes text-dark me-2"></i>
+                            Raw Stock Report
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filter Form -->
+                        <form asp-action="Index" method="post">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1">From Date</label>
+                                    <input type="date" asp-for="StockReportfilter.From"
+                                           value="@(Model.StockReportfilter.From.ToString("yyyy-MM-dd"))"
+                                           class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1">To Date</label>
+                                    <input type="date" asp-for="StockReportfilter.To"
+                                           value="@(Model.StockReportfilter.To.ToString("yyyy-MM-dd"))"
+                                           class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <button value="true" name="StockReportfilter.IsSearch" type="submit" class="btn btn-dark">
+                                        <i class="fa fa-search me-1"></i> Fetch Report
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <hr class="border border-dark" />
+
+                        @if (Model.StockReportfilter.IsSearch && Model.RawStockReportlist != null)
+                        {
+                            <div class="table-responsive" style="">
+                                <table class="table datatable-report table-bordered align-middle">
+                                    <!-- Item Detail -->
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th style="width:60px">Sr</th>
+                                            <th>Item Name</th>
+                                            <th class="text-center">Opening</th>
+                                            <th class="text-center">Purchase</th>
+                                            <th class="text-center">Received</th>
+                                            <th class="text-center">Production (Used)</th>
+                                            <th class="text-center">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int SR = 1;
+                                        }
+                                        @foreach (var itm in Model.RawStockReportlist)
+                                        {
+                                            <tr class="">
+                                                <td class="text-center fw-bold">@SR</td>
+                                                <td class="fw-bold">@itm.Name</td>
+                                                <td class="text-center fw-bold">@(itm.Opn.ToString("N2"))</td>
+                                                <td class="text-center fw-bold  @(itm.Purchase > 0 ? "bg-primary bg-opacity-10" : "")">@(itm.Purchase.ToString("N2"))</td>
+                                                <td class="text-center fw-bold @(itm.Received > 0 ? "bg-info bg-opacity-10" : "")">@(itm.Received.ToString("N2"))</td>
+                                                
+                                                <!-- Production (Used) - Light Red when used -->
+                                                <td class="text-center fw-bold @(itm.Production > 0 ? "bg-danger bg-opacity-10" : "")">
+                                                    @(itm.Production.ToString("N2"))
+                                                </td>
+                                                
+                                                <!-- Balance with conditional coloring -->
+                                                <td class="text-center fw-bold 
+                                                    @(itm.Bal < 0 ? "bg-danger bg-opacity-25 text-danger" : 
+                                                      itm.Bal <= 10 ? "bg-warning bg-opacity-25 text-dark" : 
+                                                      "bg-success bg-opacity-10 text-success")">
+                                                    @(itm.Bal.ToString("N2"))
+                                                </td>
+                                            </tr>
+                                            SR++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+}

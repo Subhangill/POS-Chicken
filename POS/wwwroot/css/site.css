@@ -1,4 +1,4 @@
-html {
+/*html {
   font-size: 14px;
 }
 
@@ -19,4 +19,75 @@ html {
 
 body {
   margin-bottom: 60px;
+}*/
+
+/* Style for DataTable length menu select dropdown to prevent arrow overlapping the number */
+.dataTables_length select {
+    width: auto !important;
+    min-width: 80px !important;
+    padding-right: 24px !important;
+    background-position: right 8px center !important;
+    background-size: 12px 12px !important;
+    display: inline-block !important;
 }
+
+/* Style for DataTable column search inputs */
+/*thead input {
+    width: 75% !important;
+    font-size: 11.5px !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    height: auto !important;
+}*/
+.form-control:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #525a64;
+}
+
+
+.dt-buttons .btn {
+    background-color: #E8E9EA !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    box-shadow: none;
+}
+
+    /* Hover */
+    .dt-buttons .btn:hover {
+        background-color: #dfe1e4 !important;
+        color: #111827 !important;
+        border-color: #c7cbd1 !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* Active / Click */
+    .dt-buttons .btn:active {
+        background-color: #cfd2d6 !important;
+        box-shadow: none;
+    }
+
+    /* Focus */
+    .dt-buttons .btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.2);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

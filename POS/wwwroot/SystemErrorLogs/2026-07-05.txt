@@ -1,0 +1,24 @@
+[15:07:23] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error coming in getting purchase report:Object reference not set to an instance of an object.
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: NullReferenceException
+Message: Object reference not set to an instance of an object.
+Stack Trace:    at POS.Controllers.PurchaseReportController.Index(ReportVm reportVm) in D:\Projects\Poultry Pos Industrial State\POS\Controllers\PurchaseReportController.cs:line 30
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+
+[15:07:41] ERROR in Method: LogErrorToFile
+--------------------------------------------------------------------------------
+Query: Error coming in getting purchase report:Object reference not set to an instance of an object.
+Parameters: NULL
+--------------------------------------------------------------------------------
+Exception Type: NullReferenceException
+Message: Object reference not set to an instance of an object.
+Stack Trace:    at POS.Controllers.PurchaseReportController.Index(ReportVm reportVm) in D:\Projects\Poultry Pos Industrial State\POS\Controllers\PurchaseReportController.cs:line 30
+--------------------------------------------------------------------------------
+Inner Exception: None
+================================================================================
+

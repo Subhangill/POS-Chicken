@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace POS.Models
 {
@@ -10,6 +12,7 @@ namespace POS.Models
         public string Note { get; set; } 
         public decimal RawTotal { get; set; }
         public decimal FinalTotal { get; set; }
-
+        [NotMapped] public string? ImagePath { get; set; }
+        [NotMapped] public IFormFile? ImageFile { get; set; }
     }
 }

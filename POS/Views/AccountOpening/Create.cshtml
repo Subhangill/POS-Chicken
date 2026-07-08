@@ -1,0 +1,273 @@
+﻿@model AccountVm
+@{
+    int sr = 0;
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+
+                    <!-- HEADER -->
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fa fa-people-roof mr-2"></i>
+                           Add Account Opening
+                        </h3>
+
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fa fa-list"></i> View List
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" method="post" asp-action="Save" asp-controller="AccountOpening">
+                        
+                            <!-- ================= ITEM SECTION (COMPACT FIXED) ================= -->
+                            <div class="card shadow-sm mt-2">
+
+                                <div class="card-header bg-light py-2">
+                                    <strong>
+                                        <i class="fa fa-boxes"></i> Add Items
+                                    </strong>
+                                </div>
+
+                                <div class="card-body py-2 px-3">
+
+                                    <div class="row g-2 align-items-end">
+
+                                        <div class="col-md-4">
+                                            <label class="fw-bold mb-1">Account (*)</label>
+                                            <select id="product" class="search-select form-control form-control-sm">
+                                                <option value="">Select Account</option>
+                                                @foreach (var itm in Model.Accountlist)
+                                                {
+                                                    <option  value="@itm.AccountNo">@(itm.Name ?? "N/A")</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Dr</label>
+                                            <input type="number" id="dr"  class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Cr</label>
+                                            <input type="number"  id="cr" class="text-center fw-bold fs-7 form-control form-control-sm" />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="fw-bold mb-1">Detail</label>
+                                            <input type="text" id="detail" class="fw-bold fs-7 form-control form-control-sm"  />
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <button onclick="addrow()" type="button" class="btn btn-success btn-block">
+                                                <i class="fa fa-plus"></i> Add
+                                            </button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- ================= ITEM TABLE (CLOSER) ================= -->
+                            <div class="mt-2">
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Account</th>
+                                                <th class="text-center">Dr</th>
+                                                <th class="text-center">Cr</th>
+                                                <th class="text-center">Detail</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="itemdtable">
+                                          
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                            <!-- ================= SUMMARY ================= -->
+                            <div class="row mt-3">
+
+                                <div class="col-md-6">
+                                    <button type="submit" onclick="return saveCheck()" class="btn btn-primary btn-lg">
+                                        <i class="fa fa-save"></i> Save Opening
+                                    </button>
+
+                                    <a href="@Url.Action("Index")" class="btn btn-danger btn-lg ms-2">
+                                        <i class="fa fa-times"></i> Cancel
+                                    </a>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        // ====================== PREVENT ENTER KEY SUBMIT ======================
+        $(document).on('keypress', 'form', function(e) {
+            if (e.keyCode === 13 || e.which === 13) {
+                var target = $(e.target);
+                // Allow Enter only on textarea or submit button
+                if (target.is('textarea') || target.is(':submit') || target.hasClass('btn')) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Optional: Also prevent on keydown for better compatibility
+        $(document).on('keydown', 'input, select', function(e) {
+            if (e.key === "Enter" || e.keyCode === 13) {
+                e.preventDefault();
+                // Optional: Move focus to next input field
+                var inputs = $(this).closest('form').find('input, select, textarea');
+                var nextInput = inputs[inputs.index(this) + 1];
+                if (nextInput) {
+                    $(nextInput).focus();
+                }
+                return false;
+            }
+        });
+
+        // ====================== EXISTING FUNCTIONS ======================
+        function applyDiscount(){
+            calculation();
+        }
+
+        function saveCheck(){
+            var sr = $("#itemdtable tr").length;
+            if(sr === 0){
+                alert("Please add accounts to table first!!");
+                return false;
+            }
+            return true;
+        }
+
+        $(document).on("click",".btn-delete",function(){
+            if(confirm("Do you want to remove this row???")){
+                $(this).closest("tr").remove();
+                reassignSr();
+                calculation();
+            }
+        });
+
+        function calculation(){
+            var total = 0;
+            $("#itemdtable tr").each(function(index, item){
+                var row = $(this);
+                total += parseFloat(row.find("input[name*='Nettotal']").val()) || 0;
+            });
+            var disc = parseFloat($("#discount").val()) || 0;
+            $("#grosstotal").val(total.toFixed(2));
+            $("#nettotal").val((total - disc).toFixed(2));
+        }
+
+        function addrow(){
+            var accountid = parseInt($("#product").val()) || 0;
+            var itemtext = $("#product option:selected").text();
+            var dr = parseFloat($("#dr").val()) || 0;
+            var cr = parseFloat($("#cr").val()) || 0;
+            var detail = $("#detail").val() || "";
+
+            if(accountid <= 0){
+                alert("Please select an account!!");
+                return;
+            }
+
+            if(dr == 0&&cr==0){
+                alert("Please enter valid amount!!");
+                $("#price").focus();
+                return;
+            }
+           
+            var sr = $("#itemdtable tr").length + 1;
+
+            $("#itemdtable").append(`
+                <tr>
+                    <td class="d-none">
+                        <input name="AccountOpeninglist[${sr-1}].AccountId" value="${accountid}" />
+                        <input name="AccountOpeninglist[${sr-1}].Dr" value="${dr}" />
+                        <input name="AccountOpeninglist[${sr-1}].Cr" value="${cr}" />
+                        <input name="AccountOpeninglist[${sr-1}].Detail" value="${detail}" />
+                    </td>
+                    <td class="text-center fw-bold sr">${sr}</td>
+                    <td class="text-start fw-bold">${itemtext}</td>
+                    <td class="text-end fw-bold">${dr}</td>
+                    <td class="text-end fw-bold">${cr}</td>
+                    <td class="text fw-bold">${detail}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-delete btn-danger"><i class="ti ti-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+
+            $("#dr").val("");
+            $("#cr").val("");
+            $("#detail").val("");
+            $("#product").val("").trigger("change");
+            calculation();
+            reassignSr();
+        }
+
+        function reassignSr() {
+            $("#itemdtable tr").each(function(index){
+                var row = $(this);
+                row.find("td.sr").text(index + 1);
+                row.find("input").each(function () {
+                    var oldName = $(this).attr("name");
+                    if (!oldName) return;
+                    var newName = oldName.replace(/AccountOpeninglist\[\d+\]/, `AccountOpeninglist[${index}]`);
+                    $(this).attr("name", newName);
+                });
+            });
+        }
+
+        function qtytotal(){
+            var qty = parseFloat($("#qty").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+            $("#total").val(price * qty);
+        }
+
+        $(document).ready(function(){
+            $("#product").on("change", function(){
+                var pid = $(this).val();
+                if(pid === "" || pid == null){
+                    $("#price").val("");
+                    $("#total").val("");
+                    $("#qty").val("");
+                    return;
+                }
+                var price = parseFloat($("#product option:selected").data("price")) || 0;
+                $("#price").val(price);
+                $("#total").val(price);
+                $("#qty").val("1");
+            });
+        });
+    </script>
+}
